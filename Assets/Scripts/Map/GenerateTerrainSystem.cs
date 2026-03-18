@@ -63,14 +63,18 @@ public partial struct GenerateTerrainSystem : ISystem
                     Coordinate = new int2(chunkX, chunkY)
                 });
 
+#if UNITY_EDITOR
+                ecb.SetName(chunkEntity, $"Chunk_{chunkX}_{chunkY}");
+#endif
+
                 DynamicBuffer<BlockBuffer> blockBuffer = ecb.AddBuffer<BlockBuffer>(chunkEntity);
-                GenerateChunkTerrain(blockBuffer, chunkX, chunkY, seed, blockHardness);
+                GenerateChunkTerrain(ref blockBuffer, chunkX, chunkY, seed, blockHardness);
             }
         }
     }
 
     // Perlin Noise를 이용하여 청크 지형 생성
-    private void GenerateChunkTerrain(DynamicBuffer<BlockBuffer> blockBuffer, int chunkX, int chunkY, uint seed, float blockHardness)
+    private void GenerateChunkTerrain(ref DynamicBuffer<BlockBuffer> blockBuffer, int chunkX, int chunkY, uint seed, float blockHardness)
     {
         float seedOffset = (seed & 1023u) * 0.017f;
 
