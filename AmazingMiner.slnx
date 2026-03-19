@@ -106,7 +106,6 @@
   <Project Path="Unity.RenderPipeline.Universal.ShaderLibrary.csproj" />
   <Project Path="Unity.Numerics.Random.csproj" />
   <Project Path="Unity.Core.Editor.csproj" />
-  <Project Path="Main.csproj" />
   <Project Path="Unity.Mathematics.Extensions.csproj" />
   <Project Path="Unity.Numerics.Linear.Sparse.csproj" />
   <Project Path="Unity.2D.PixelPerfect.csproj" />
