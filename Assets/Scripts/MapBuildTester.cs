@@ -5,7 +5,11 @@ using UnityEngine.LowLevelPhysics2D;
 
 public class MapBuildTester : MonoBehaviour
 {
-
+    void Start()
+    {
+        // 맵 생성 요청을 ECS로 보냅니다.
+        OnClickEnterStage();
+    }
 
     public void OnClickEnterStage()
     {

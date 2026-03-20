@@ -33,13 +33,15 @@ namespace CoreDriller.Map
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-            // 1. GenerateStageRequest를 가진 엔티티를 찾습니다. (없으면 이 시스템은 그냥 패스됨)
+            // 1. GenerateStageRequest를 가진 엔티티를 찾습니다.
             foreach (var (request, entity) in SystemAPI.Query<RefRO<GenerateStageRequest>>().WithEntityAccess())
             {
-                // 2. 로직 실행 (전달받은 Seed, Width 등을 바탕으로 맵 생성)
+                UnityEngine.Debug.Log($"[GenerateTerrainSystem] 지형 생성 시작! 시드: {request.ValueRO.Seed}");
+
+                // 2. 로직 실행
                 Generate(ref ecb, request.ValueRO);
 
-                // 3. 처리가 끝났으므로 '요청 엔티티'를 파괴합니다. (1회성 호출 효과)
+                // 3. 처리 끝났으므로 요청 엔티티 파괴
                 ecb.DestroyEntity(entity);
             }
 

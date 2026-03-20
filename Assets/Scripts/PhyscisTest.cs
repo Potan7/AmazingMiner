@@ -13,6 +13,7 @@ public class PhyscisTest : MonoBehaviour
         PhysicsWorld world = PhysicsWorld.defaultWorld;
         PhysicsBody myObject = world.CreateBody(bodyDefinition);
         myObject.CreateShape(capsuleGeometry, shapeDefinition);
+        myObject.position += new Vector2(1, 1);
     }
 
 
