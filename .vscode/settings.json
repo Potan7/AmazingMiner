@@ -67,5 +67,8 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "AmazingMiner.slnx"
+    "dotnet.defaultSolution": "AmazingMiner.slnx",
+    "chat.tools.terminal.autoApprove": {
+        "dotnet build": true
+    }
 }

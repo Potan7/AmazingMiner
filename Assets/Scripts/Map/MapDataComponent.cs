@@ -31,4 +31,7 @@ namespace CoreDriller.Map
     {
         public PhysicsBody Body;
     }
+
+    // 물리 갱신이 필요함을 나타내는 태그
+    public struct PhysicsNeedsUpdateTag : IComponentData { }
 }

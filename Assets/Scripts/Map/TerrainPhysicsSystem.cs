@@ -1,4 +1,3 @@
-using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -9,23 +8,131 @@ using UnityEngine.LowLevelPhysics2D;
 
 namespace CoreDriller.Map
 {
+    public struct ChunkRect
+    {
+        public float CenterX;
+        public float CenterY;
+        public float Width;
+        public float Height;
+    }
+
+    [BurstCompile]
+    partial struct GreedyMeshingJob : IJobEntity
+    {
+        [ReadOnly] public NativeArray<BlockBuffer> Blocks;
+        public int ChunkSize;
+        public float CellSize;
+        public NativeList<ChunkRect> OutputRects;
+
+        public void Execute()
+        {
+            var visited = new NativeArray<bool>(ChunkSize * ChunkSize, Allocator.Temp);
+
+            for (int startX = 0; startX < ChunkSize; startX++)
+            {
+                for (int startY = 0; startY < ChunkSize; startY++)
+                {
+                    int startIndex = startX * ChunkSize + startY;
+
+                    if (visited[startIndex] || Blocks[startIndex].Value.BlockType == 0)
+                        continue;
+
+                    int h = 0;
+                    for (int y = startY; y < ChunkSize; y++)
+                    {
+                        int idx = startX * ChunkSize + y;
+                        if (visited[idx] || Blocks[idx].Value.BlockType == 0) break;
+                        h++;
+                    }
+
+                    int w = 0;
+                    bool canExpand = true;
+                    for (int x = startX; x < ChunkSize && canExpand; x++)
+                    {
+                        for (int y = startY; y < startY + h; y++)
+                        {
+                            int idx = x * ChunkSize + y;
+                            if (visited[idx] || Blocks[idx].Value.BlockType == 0)
+                            {
+                                canExpand = false;
+                                break;
+                            }
+                        }
+                        if (canExpand) w++;
+                    }
+
+                    for (int x = startX; x < startX + w; x++)
+                    {
+                        for (int y = startY; y < startY + h; y++)
+                        {
+                            visited[x * ChunkSize + y] = true;
+                        }
+                    }
+
+                    float centerX = (startX + w * 0.5f) * CellSize;
+                    float centerY = (startY + h * 0.5f) * CellSize;
+
+                    OutputRects.Add(new ChunkRect
+                    {
+                        CenterX = centerX,
+                        CenterY = centerY,
+                        Width = w * CellSize,
+                        Height = h * CellSize
+                    });
+                }
+            }
+            visited.Dispose();
+        }
+    }
 
     [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
     [UpdateAfter(typeof(GenerateTerrainSystem))]
     public partial struct TerrainPhysicsSystem : ISystem
     {
-        private const float CellSize = 1f;
+        private const float CellSize = 0.5f; 
         private const int ChunkSize = 16;
+        private const int MaxProcessedChunksPerFrame = 32; // 처리량 증가 (초기 생성 병목 해결)
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
+            int processedCount = 0;
 
+            // 1. 물리 갱신이 필요한 청크(PhysicsNeedsUpdateTag)만 찾습니다.
             foreach (var (blocks, transform, entity) in SystemAPI.Query<DynamicBuffer<BlockBuffer>, RefRO<LocalTransform>>()
-                         .WithNone<ChunkPhysicsBody>()
+                         .WithAll<PhysicsNeedsUpdateTag>()
                          .WithEntityAccess())
             {
+                if (processedCount >= MaxProcessedChunksPerFrame) break;
+                if (blocks.Length != ChunkSize * ChunkSize) continue;
+
+                processedCount++;
+                ecb.RemoveComponent<PhysicsNeedsUpdateTag>(entity); 
+
+                // 🚨 기존에 이미 물리 바디가 붙어있다면 파괴 (누수 방지)
+                if (SystemAPI.HasComponent<ChunkPhysicsBody>(entity))
+                {
+                    var existingBody = SystemAPI.GetComponent<ChunkPhysicsBody>(entity).Body;
+                    if (existingBody.isValid)
+                    {
+                        existingBody.Destroy();
+                    }
+                    ecb.RemoveComponent<ChunkPhysicsBody>(entity);
+                }
+
+                // 2. Greedy Meshing 알고리즘 실행
+                var rects = new NativeList<ChunkRect>(Allocator.Temp);
+                var job = new GreedyMeshingJob
+                {
+                    Blocks = blocks.AsNativeArray(),
+                    ChunkSize = ChunkSize,
+                    CellSize = CellSize,
+                    OutputRects = rects
+                };
+                job.Execute(); 
+
+                // 3. LowLevelPhysics2D 바디 생성
                 PhysicsWorld world = PhysicsWorld.defaultWorld;
                 PhysicsBodyDefinition bodyDef = PhysicsBodyDefinition.defaultDefinition;
                 bodyDef.type = PhysicsBody.BodyType.Static;
@@ -33,47 +140,24 @@ namespace CoreDriller.Map
 
                 PhysicsBody body = world.CreateBody(bodyDef);
 
-                // 1. PhysicsComposer 생성
-                var composer = PhysicsComposer.Create();
-
-                // Span으로 넘기기 위한 1x1 기본 박스 (중심이 0,0 이고 범위는 -0.5 ~ 0.5)
-                var baseBoxArray = new NativeArray<PolygonGeometry>(1, Allocator.Temp);
-                baseBoxArray[0] = new PolygonGeometry();
-                ReadOnlySpan<PolygonGeometry> baseBoxSpan = baseBoxArray.AsReadOnlySpan();
-
-                // 2. 블록 순회 및 Composer에 오프셋 레이어 추가
-                for (int i = 0; i < blocks.Length; i++)
+                if (rects.Length > 0)
                 {
-                    if (blocks[i].Value.BlockType > 0)
+                    var polygonArray = new NativeArray<PolygonGeometry>(rects.Length, Allocator.Temp);
+
+                    for (int i = 0; i < rects.Length; i++)
                     {
-                        int x = i / ChunkSize;
-                        int y = i % ChunkSize;
+                        var rect = rects[i];
+                        Vector2 boxSize = new Vector2(rect.Width, rect.Height);
+                        PhysicsTransform boxOffset = new PhysicsTransform(new Vector2(rect.CenterX, rect.CenterY));
 
-                        // [핵심] 기본 박스가 중심(0,0) 기준이므로, 
-                        // 블록의 좌하단을 렌더링 메쉬와 똑같이 (x,y)에 맞추려면 오프셋에 0.5f를 더해야 합니다.
-                        float px = x * CellSize + (CellSize * 0.5f);
-                        float py = y * CellSize + (CellSize * 0.5f);
-                        PhysicsTransform offset = new PhysicsTransform(new Vector2(px, py));
-
-                        // Operation.OR: 인접한 블록끼리 겹치는 내부 충돌선을 없애고 하나로 융합합니다.
-                        composer.AddLayer(baseBoxSpan, offset, PhysicsComposer.Operation.OR);
+                        polygonArray[i] = PolygonGeometry.CreateBox(boxSize, 0f, boxOffset);
                     }
+
+                    body.CreateShapeBatch(polygonArray.AsReadOnlySpan(), PhysicsShapeDefinition.defaultDefinition);
+                    polygonArray.Dispose();
                 }
 
-                // 3. 병합된 최종 다각형 지오메트리 굽기 (이 함수의 반환값은 NativeArray이므로 using 사용 가능)
-                using (var combinedShapes = composer.CreatePolygonGeometry(new Vector2(0.5f, 0.5f), Allocator.Temp))
-                {
-                    if (combinedShapes.Length > 0)
-                    {
-                        // 합쳐진 덩어리를 단 한 번의 호출로 바디에 부착 (Batch 최적화)
-                        body.CreateShapeBatch(combinedShapes.AsReadOnlySpan(), PhysicsShapeDefinition.defaultDefinition);
-                    }
-                }
-
-                // 4. 수동 메모리 해제
-                composer.Destroy();
-                baseBoxArray.Dispose();
-
+                rects.Dispose();
                 ecb.AddComponent(entity, new ChunkPhysicsBody { Body = body });
             }
 
@@ -81,4 +165,5 @@ namespace CoreDriller.Map
             ecb.Dispose();
         }
     }
+
 }

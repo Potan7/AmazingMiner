@@ -18,6 +18,7 @@
   <Project Path="Unity.2D.IK.Runtime.csproj" />
   <Project Path="Unity.Addressables.Editor.csproj" />
   <Project Path="Unity.Collections.csproj" />
+  <Project Path="CodeStage.AFPSCounter.Runtime.csproj" />
   <Project Path="Unity.Entities.UI.Editor.csproj" />
   <Project Path="Unity.VisualScripting.Core.Editor.csproj" />
   <Project Path="Unity.RenderPipelines.Universal.Editor.csproj" />
@@ -77,6 +78,7 @@
   <Project Path="Unity.Entities.Editor.Properties.csproj" />
   <Project Path="Unity.2D.Sprite.Editor.csproj" />
   <Project Path="Unity.InternalAPIEditorBridge.013.csproj" />
+  <Project Path="CodeStage.AFPSCounter.Editor.csproj" />
   <Project Path="Unity.2D.PixelPerfect.Editor.csproj" />
   <Project Path="Unity.Multiplayer.Center.Common.csproj" />
   <Project Path="Unity.Physics.Editor.csproj" />
@@ -106,6 +108,7 @@
   <Project Path="Unity.RenderPipeline.Universal.ShaderLibrary.csproj" />
   <Project Path="Unity.Numerics.Random.csproj" />
   <Project Path="Unity.Core.Editor.csproj" />
+  <Project Path="CodeStage.AFPSCounter.Examples.csproj" />
   <Project Path="Unity.Mathematics.Extensions.csproj" />
   <Project Path="Unity.Numerics.Linear.Sparse.csproj" />
   <Project Path="Unity.2D.PixelPerfect.csproj" />

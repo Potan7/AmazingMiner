@@ -79,6 +79,7 @@ namespace CoreDriller.Map
                     ecb.AddBuffer<Map.Rendering.ChunkVertex>(chunkEntity);
                     ecb.AddBuffer<Map.Rendering.ChunkTriangle>(chunkEntity);
                     ecb.AddComponent<Map.Rendering.MeshNeedsUpdateTag>(chunkEntity);
+                    ecb.AddComponent<PhysicsNeedsUpdateTag>(chunkEntity);
 
                     GenerateChunkTerrain(ref blockBuffer, chunkX, chunkY, chunkWidth, chunkDepth, blockHardness);
                 }

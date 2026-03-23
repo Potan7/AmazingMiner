@@ -411,6 +411,9 @@ FodyWeavers.xsd
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 
+# Profiler captures can get excessive in size.
+/ProfilerCaptures/
+
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/

@@ -29,7 +29,6 @@ namespace CoreDriller.Player
 
     // 2. System: PlayerInputManager의 이벤트를 읽어서 ECS의 MovementInput으로 전달
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateBefore(typeof(MovementSystem))] // FixedStepSimulationSystemGroup이 아닌 특정 시스템보다 먼저 실행되게 명시하거나 삭제
     public partial class PlayerInputSystem : SystemBase
     {
         protected override void OnUpdate()
@@ -49,9 +48,6 @@ namespace CoreDriller.Player
             {
                 var movementInput = SystemAPI.GetComponentRW<MovementInput>(player);
                 movementInput.ValueRW.Direction = currentMove;
-                // MoveManager가 false로 만들더라도 InputManager에서 키를 누르고 있으면 
-                // 강제로 다시 true가 되는 것을 방지하기 위해 이렇게 수정할 수도 있지만,
-                // 제트팩처럼 계속 누를 때 유지되어야 한다면 이대로 팩트 적용을 유지합니다.
                 movementInput.ValueRW.Jump = currentJump;
             }
 

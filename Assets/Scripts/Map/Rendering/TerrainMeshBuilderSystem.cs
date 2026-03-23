@@ -1,13 +1,10 @@
 using Unity.Entities;
 using Unity.Burst;
+using Unity.Collections;
+using Unity.Mathematics;
 
 namespace CoreDriller.Map.Rendering
 {
-    // 1. 이 시스템은 MeshNeedsUpdateTag가 달린 청크 엔티티를 찾아서 MarchingSquaresJob을 실행합니다.
-    // 2. MarchingSquaresJob은 각 청크의 블록 데이터를 읽어서 정점과 삼각형 버퍼를 생성합니다.
-    // 3. 이 시스템은 TerrainGpuUploadSystem보다 먼저 실행되어야 합니다. (그래야 GPU 업로드 전에 데이터가 준비됨)
-
-    // 렌더링 업로드 시스템(TerrainGpuUploadSystem)보다 먼저 실행되도록 순서 강제
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     [UpdateBefore(typeof(TerrainGpuUploadSystem))]
     public partial struct TerrainMeshBuilderSystem : ISystem
@@ -15,22 +12,75 @@ namespace CoreDriller.Map.Rendering
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
-            // MeshNeedsUpdateTag가 달린 청크가 있을 때만 시스템이 활성화되도록 설정
             state.RequireForUpdate<MeshNeedsUpdateTag>();
         }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            // MeshNeedsUpdateTag가 달린 청크(방금 생성됐거나, 방금 채굴당한 청크)만 처리합니다.
+            // 수정된 청크만 처리하는 Job을 예약합니다.
             var marchingJob = new BlockMeshJob
             {
                 ChunkSize = 16,
                 CellSize = 0.5f
             };
 
-            // IJobEntity를 활용해 모든 태그된 청크에 대해 워커 스레드에서 병렬(Parallel) 연산을 수행합니다.
             state.Dependency = marchingJob.ScheduleParallel(state.Dependency);
+        }
+    }
+
+    [BurstCompile]
+    [WithAll(typeof(MeshNeedsUpdateTag))] // 중요: 수정된 청크만 연산하도록 필터링
+    public partial struct BlockMeshJob : IJobEntity
+    {
+        public int ChunkSize;
+        public float CellSize;
+
+        public void Execute(in ChunkComponent chunk, in DynamicBuffer<BlockBuffer> blocks,
+                             ref DynamicBuffer<ChunkVertex> vertices, ref DynamicBuffer<ChunkTriangle> triangles)
+        {
+            vertices.Clear();
+            triangles.Clear();
+
+            // 청크 내 모든 블록을 순회하며 쿼드 생성
+            for (int x = 0; x < ChunkSize; x++)
+            {
+                for (int y = 0; y < ChunkSize; y++)
+                {
+                    if (blocks[x * ChunkSize + y].Value.BlockType == 0)
+                        continue;
+
+                    float px = x * CellSize;
+                    float py = y * CellSize;
+
+                    // 4개의 정점 (0.5f 사이즈 반영)
+                    float3 vBL = new float3(px, py, 0);
+                    float3 vBR = new float3(px + CellSize, py, 0);
+                    float3 vTR = new float3(px + CellSize, py + CellSize, 0);
+                    float3 vTL = new float3(px, py + CellSize, 0);
+
+                    AddQuad(vBL, vBR, vTR, vTL, ref vertices, ref triangles);
+                }
+            }
+        }
+
+        private void AddQuad(float3 a, float3 b, float3 c, float3 d,
+                             ref DynamicBuffer<ChunkVertex> vertices, ref DynamicBuffer<ChunkTriangle> triangles)
+        {
+            int startIndex = vertices.Length;
+
+            vertices.Add(new ChunkVertex { Position = a });
+            vertices.Add(new ChunkVertex { Position = b });
+            vertices.Add(new ChunkVertex { Position = c });
+            vertices.Add(new ChunkVertex { Position = d });
+
+            triangles.Add(new ChunkTriangle { Value = startIndex });
+            triangles.Add(new ChunkTriangle { Value = startIndex + 2 });
+            triangles.Add(new ChunkTriangle { Value = startIndex + 1 });
+
+            triangles.Add(new ChunkTriangle { Value = startIndex });
+            triangles.Add(new ChunkTriangle { Value = startIndex + 3 });
+            triangles.Add(new ChunkTriangle { Value = startIndex + 2 });
         }
     }
 }
