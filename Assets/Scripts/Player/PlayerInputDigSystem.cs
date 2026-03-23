@@ -3,11 +3,10 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace CoreDriller.Map.Dig
+namespace CoreDriller.Player
 {
     // 마우스 클릭 시 DigEvent를 생성하는 시스템 (메인 스레드 실행)
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateBefore(typeof(TerrainModificationSystem))] // модификация보다 먼저 실행되도록 보장
     public partial class PlayerInputDigSystem : SystemBase
     {
         private Camera mainCamera;

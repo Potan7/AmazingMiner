@@ -2,7 +2,7 @@ using Unity.Entities;
 using UnityEngine;
 using UnityEngine.LowLevelPhysics2D;
 
-namespace CoreDriller.Physics
+namespace CoreDriller.Motion
 {
     class PhysicsBodyAuthoring : MonoBehaviour
     {

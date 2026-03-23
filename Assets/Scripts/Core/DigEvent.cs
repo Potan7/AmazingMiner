@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-namespace CoreDriller.Map.Dig
+namespace CoreDriller
 {
     // 1회성 채굴/폭발 명령을 담는 데이터
     public struct DigEvent : IComponentData

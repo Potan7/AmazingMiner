@@ -128,7 +128,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 750368659}
-  - component: {fileID: 750368660}
   - component: {fileID: 750368661}
   - component: {fileID: 750368663}
   - component: {fileID: 750368662}
@@ -155,70 +154,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &750368660
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 750368658}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22327f35b198f034bb5d5e21c63d90c7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Physics.PhysicsBodyAuthoring
-  bodyDefinition:
-    m_BodyType: 0
-    m_BodyConstraints: 4
-    m_TransformWriteMode: 3
-    m_Position: {x: 0, y: 0}
-    m_Rotation:
-      direction: {x: 1, y: 0}
-    m_LinearVelocity: {x: 0, y: 0}
-    m_AngularVelocity: 0
-    m_LinearDamping: 0
-    m_AngularDamping: 0
-    m_GravityScale: 1
-    m_SleepThreshold: 0.05
-    m_FastRotationAllowed: 0
-    m_FastCollisionsAllowed: 0
-    m_SleepingAllowed: 1
-    m_Awake: 1
-    m_Enabled: 1
-  shapeDefinition:
-    contactFilter:
-      m_Categories:
-        bitMask: 1
-      m_Contacts:
-        bitMask: 18446744073709551615
-      m_GroupIndex: 0
-    surfaceMaterial:
-      m_Friction: 0.6
-      m_Bounciness: 0
-      m_FrictionMixing: 1
-      m_BouncinessMixing: 4
-      m_FrictionPriority: 0
-      m_BouncinessPriority: 0
-      m_RollingResistance: 0
-      m_TangentSpeed: 0
-      m_CustomColor:
-        serializedVersion: 2
-        rgba: 0
-    m_Density: 1
-    m_IsTrigger: 0
-    m_TriggerEvents: 0
-    m_ContactEvents: 0
-    m_HitEvents: 0
-    m_ContactFilterCallbacks: 0
-    m_PreSolveCallbacks: 0
-    m_StartStaticContacts: 1
-    m_StartMassUpdate: 1
-    moverData:
-      m_PushLimit: 1000000
-      m_ClipVelocity: 1
-  circleGeometry:
-    m_Center: {x: 0, y: 0}
-    m_Radius: 1
 --- !u!114 &750368661
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297,11 +232,61 @@ MonoBehaviour:
   m_GameObject: {fileID: 750368658}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db924c3c670d0564a9373d8e9c9e9a00, type: 3}
+  m_Script: {fileID: 11500000, guid: 9376a993ed6eb2742b40303cdcdf2696, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CoreDriller.Player.PlayerMovement
-  moveSpeed: 5
-  jumpForce: 40
+  m_EditorClassIdentifier: Assembly-CSharp::CoreDriller.Motion.PhysicsBodyAuthoring
+  bodyDefinition:
+    m_BodyType: 0
+    m_BodyConstraints: 4
+    m_TransformWriteMode: 0
+    m_Position: {x: 0, y: 0}
+    m_Rotation:
+      direction: {x: 1, y: 0}
+    m_LinearVelocity: {x: 0, y: 0}
+    m_AngularVelocity: 0
+    m_LinearDamping: 0
+    m_AngularDamping: 0
+    m_GravityScale: 0
+    m_SleepThreshold: 0
+    m_FastRotationAllowed: 0
+    m_FastCollisionsAllowed: 0
+    m_SleepingAllowed: 0
+    m_Awake: 0
+    m_Enabled: 0
+  shapeDefinition:
+    contactFilter:
+      m_Categories:
+        bitMask: 0
+      m_Contacts:
+        bitMask: 0
+      m_GroupIndex: 0
+    surfaceMaterial:
+      m_Friction: 0
+      m_Bounciness: 0
+      m_FrictionMixing: 0
+      m_BouncinessMixing: 0
+      m_FrictionPriority: 0
+      m_BouncinessPriority: 0
+      m_RollingResistance: 0
+      m_TangentSpeed: 0
+      m_CustomColor:
+        serializedVersion: 2
+        rgba: 0
+    m_Density: 0
+    m_IsTrigger: 0
+    m_TriggerEvents: 0
+    m_ContactEvents: 0
+    m_HitEvents: 0
+    m_ContactFilterCallbacks: 0
+    m_PreSolveCallbacks: 0
+    m_StartStaticContacts: 0
+    m_StartMassUpdate: 0
+    moverData:
+      m_PushLimit: 0
+      m_ClipVelocity: 0
+  circleGeometry:
+    m_Center: {x: 0, y: 0}
+    m_Radius: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

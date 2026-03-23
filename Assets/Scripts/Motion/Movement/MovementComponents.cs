@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-namespace CoreDriller.Movement
+namespace CoreDriller.Motion.Movement
 {
     public struct MovementInput : IComponentData
     {

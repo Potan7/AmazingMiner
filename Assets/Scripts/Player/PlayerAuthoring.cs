@@ -1,3 +1,4 @@
+using CoreDriller.Motion.Movement;
 using Unity.Entities;
 using UnityEngine;
 
@@ -12,13 +13,20 @@ namespace CoreDriller.Player
             {
                 Entity entity = GetEntity(TransformUsageFlags.Dynamic);
                 AddComponent(entity, new PlayerTag());
+
+                AddComponent(entity, new MovementInput());
+                AddComponent(entity, new MovementStats()
+                {
+                    MoveSpeed = 5f,
+                    JumpForce = 10f
+                });
             }
         }
     }
 
     public partial struct PlayerTag : IComponentData
     {
-        // 플레이어 식별 태그 (추후 플레이어 관련 컴포넌트 추가 가능)
+        // simple tag component to identify the player entity
     }
 
 }

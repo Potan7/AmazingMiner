@@ -9,9 +9,9 @@ namespace CoreDriller.Map.Rendering
     public struct MeshNeedsUpdateTag : IComponentData { }
 
     // 2. 정점/삼각형 버퍼 컴포넌트: 각 청크 엔티티에 붙어서 GPU에 보낼 데이터를 담습니다.
-    [InternalBufferCapacity(0)] 
+    [InternalBufferCapacity(0)]
     public struct ChunkVertex : IBufferElementData { public float3 Position; }
-    [InternalBufferCapacity(0)] 
+    [InternalBufferCapacity(0)]
     public struct ChunkTriangle : IBufferElementData { public int Value; }
 
     // 3. 렌더링 정보 컴포넌트: GPU 버퍼 핸들과 그릴 개수, 영역 등을 담습니다.

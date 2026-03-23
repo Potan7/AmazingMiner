@@ -174,8 +174,8 @@ GameObject:
   - component: {fileID: 393156030}
   - component: {fileID: 393156031}
   m_Layer: 0
-  m_Name: PlayerInput
-  m_TagString: Untagged
+  m_Name: PlayerManager
+  m_TagString: GameController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -204,9 +204,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 393156029}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81857123da9ec7d40982f1e53bc56db4, type: 3}
+  m_Script: {fileID: 11500000, guid: 7037d6c7c00fb9440877e6f143514077, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CoreDriller.Player.PlayerInputManager
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerManager
+  playerStatSO: {fileID: 11400000, guid: c57bd27270e964242812eb9adabc3397, type: 2}
 --- !u!1 &408862558
 GameObject:
   m_ObjectHideFlags: 0

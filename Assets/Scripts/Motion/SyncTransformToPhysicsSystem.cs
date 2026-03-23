@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine.LowLevelPhysics2D;
 
-namespace CoreDriller.Physics
+namespace CoreDriller.Motion
 {
 
     [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]

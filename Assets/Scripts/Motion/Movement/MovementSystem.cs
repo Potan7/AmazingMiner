@@ -2,10 +2,10 @@ using Unity.Entities;
 using Unity.Burst;
 using Unity.Mathematics;
 using Unity.Transforms;
-using CoreDriller.Physics;
+using CoreDriller.Motion;
 using UnityEngine;
 
-namespace CoreDriller.Movement
+namespace CoreDriller.Motion.Movement
 {
     [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
     [UpdateBefore(typeof(SyncTransformToPhysicsSystem))]
@@ -51,13 +51,12 @@ namespace CoreDriller.Movement
         public void Execute(in PhysicsBodyHandle physicsBodyHandle, ref MovementInput input, in MovementStats stats)
         {
             float2 moveDelta = stats.MoveSpeed * input.Direction;
-            physicsBodyHandle.Body.linearVelocity = new Vector2(moveDelta.x, physicsBodyHandle.Body.linearVelocity.y); // ?�평 ?�동?� ?�력???�라, ?�직 ?�동?� 기존 ?�도 ?��?
-            // physicsBodyHandle.Body.ApplyForceToCenter(moveDelta * 10f); // ?�의 ?�기??조절???�요?????�습?�다.                                                                                                   
+            physicsBodyHandle.Body.linearVelocity = new Vector2(moveDelta.x, physicsBodyHandle.Body.linearVelocity.y);
+            // physicsBodyHandle.Body.ApplyForceToCenter(moveDelta * 10f);                                                                                                 
 
             if (input.Jump)
             {
-                // 제트팩: 누르고 있는 내내 위쪽으로 힘을 더합니다 (Force)
-                // 중력을 이겨내려면 기존 점프 속도보다 гораздо 큰 힘(예: 수백~수천)이 필요할 수 있습니다.
+                // 점프 입력이 있을 때, 수직 방향으로 점프 힘을 가함. 일단 제트팩 로직으로 인해 이렇게 했는데 만약 잡몹도 점프를 한다면 수정이 필요
                 physicsBodyHandle.Body.ApplyForceToCenter(new Vector2(0, stats.JumpForce));
             }
         }
