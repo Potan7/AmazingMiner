@@ -237,7 +237,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CoreDriller.Motion.PhysicsBodyAuthoring
   bodyDefinition:
     m_BodyType: 0
-    m_BodyConstraints: 4
+    m_BodyConstraints: 0
     m_TransformWriteMode: 0
     m_Position: {x: 0, y: 0}
     m_Rotation:
@@ -246,7 +246,7 @@ MonoBehaviour:
     m_AngularVelocity: 0
     m_LinearDamping: 0
     m_AngularDamping: 0
-    m_GravityScale: 0
+    m_GravityScale: 1
     m_SleepThreshold: 0
     m_FastRotationAllowed: 0
     m_FastCollisionsAllowed: 0
@@ -272,7 +272,7 @@ MonoBehaviour:
       m_CustomColor:
         serializedVersion: 2
         rgba: 0
-    m_Density: 0
+    m_Density: 1
     m_IsTrigger: 0
     m_TriggerEvents: 0
     m_ContactEvents: 0
@@ -286,7 +286,7 @@ MonoBehaviour:
       m_ClipVelocity: 0
   circleGeometry:
     m_Center: {x: 0, y: 0}
-    m_Radius: 0
+    m_Radius: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
