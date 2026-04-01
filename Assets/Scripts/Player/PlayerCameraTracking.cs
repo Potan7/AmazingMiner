@@ -7,17 +7,10 @@ namespace CoreDriller.Player
 
     public class PlayerCameraTracking : MonoBehaviour
     {
-        private Camera mainCamera;
         private Entity playerEntity;
 
         void LateUpdate()
         {
-            if (mainCamera == null)
-            {
-                mainCamera = Camera.main;
-                if (mainCamera == null) return;
-            }
-
             var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
             if (playerEntity == Entity.Null)
             {
@@ -33,7 +26,7 @@ namespace CoreDriller.Player
             if (!entityManager.HasComponent<LocalTransform>(playerEntity)) return;
             var playerTransform = entityManager.GetComponentData<LocalTransform>(playerEntity);
 
-            mainCamera.transform.position = new Vector3(playerTransform.Position.x, playerTransform.Position.y, mainCamera.transform.position.z);
+            transform.position = new Vector3(playerTransform.Position.x, playerTransform.Position.y, transform.position.z);
 
         }
     }

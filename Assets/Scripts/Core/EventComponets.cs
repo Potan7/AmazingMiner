@@ -10,4 +10,10 @@ namespace CoreDriller
         public float Radius;         // 파괴 반경 (드릴: 0.5f, 폭탄: 3.0f 등)
         public float DigPower;       // 파괴력 (블록의 Hardness와 비교)
     }
+
+    public struct MouseInputData : IComponentData
+    {
+        public bool IsLeftClickPressed;
+        public float2 WorldPosition;
+    }
 }

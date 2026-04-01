@@ -10,6 +10,13 @@ namespace CoreDriller.Motion
         public PhysicsShapeDefinition shapeDefinition;
         public CircleGeometry circleGeometry;
 
+        void Reset()
+        {
+            bodyDefinition = PhysicsBodyDefinition.defaultDefinition;
+            shapeDefinition = PhysicsShapeDefinition.defaultDefinition;
+            circleGeometry = CircleGeometry.Create(0.5f); // 기본 반지름 0.5f로 설정
+        }
+
         class PhysicsBodyAuthoringBaker : Baker<PhysicsBodyAuthoring>
         {
             public override void Bake(PhysicsBodyAuthoring authoring)

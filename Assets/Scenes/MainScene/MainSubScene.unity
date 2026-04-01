@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 750368663}
   - component: {fileID: 750368662}
   - component: {fileID: 750368664}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -234,11 +234,11 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9376a993ed6eb2742b40303cdcdf2696, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CoreDriller.Motion.PhysicsBodyAuthoring
+  m_EditorClassIdentifier: CoreDriller.Motion::CoreDriller.Motion.PhysicsBodyAuthoring
   bodyDefinition:
     m_BodyType: 0
-    m_BodyConstraints: 0
-    m_TransformWriteMode: 0
+    m_BodyConstraints: 4
+    m_TransformWriteMode: 3
     m_Position: {x: 0, y: 0}
     m_Rotation:
       direction: {x: 1, y: 0}
@@ -247,24 +247,24 @@ MonoBehaviour:
     m_LinearDamping: 0
     m_AngularDamping: 0
     m_GravityScale: 1
-    m_SleepThreshold: 0
+    m_SleepThreshold: 0.05
     m_FastRotationAllowed: 0
     m_FastCollisionsAllowed: 0
-    m_SleepingAllowed: 0
-    m_Awake: 0
-    m_Enabled: 0
+    m_SleepingAllowed: 1
+    m_Awake: 1
+    m_Enabled: 1
   shapeDefinition:
     contactFilter:
       m_Categories:
-        bitMask: 0
+        bitMask: 8
       m_Contacts:
-        bitMask: 0
+        bitMask: 18446744073709551615
       m_GroupIndex: 0
     surfaceMaterial:
-      m_Friction: 0
+      m_Friction: 0.6
       m_Bounciness: 0
-      m_FrictionMixing: 0
-      m_BouncinessMixing: 0
+      m_FrictionMixing: 1
+      m_BouncinessMixing: 4
       m_FrictionPriority: 0
       m_BouncinessPriority: 0
       m_RollingResistance: 0
@@ -279,11 +279,11 @@ MonoBehaviour:
     m_HitEvents: 0
     m_ContactFilterCallbacks: 0
     m_PreSolveCallbacks: 0
-    m_StartStaticContacts: 0
-    m_StartMassUpdate: 0
+    m_StartStaticContacts: 1
+    m_StartMassUpdate: 1
     moverData:
-      m_PushLimit: 0
-      m_ClipVelocity: 0
+      m_PushLimit: 1000000
+      m_ClipVelocity: 1
   circleGeometry:
     m_Center: {x: 0, y: 0}
     m_Radius: 1

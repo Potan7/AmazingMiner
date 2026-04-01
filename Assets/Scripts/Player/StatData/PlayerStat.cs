@@ -17,6 +17,7 @@ public class PlayerStat
     public float DrillFuelConsumption;
     public float DigCooldown;
     public float DrillRange;
+    public float DrillExplosionRadius;
 
     [Header("Jetpack System")]
     public float JetpackThrust;
@@ -37,6 +38,7 @@ public class PlayerStat
         DrillFuelConsumption = statSO.DrillFuelConsumption;
         DigCooldown = statSO.DigCooldown;
         DrillRange = statSO.DrillRange;
+        DrillExplosionRadius = statSO.DrillExplosionRadius;
         JetpackThrust = statSO.JetpackThrust;
         JetpackFuelConsumption = statSO.JetpackFuelConsumption;
         InventorySize = statSO.InventorySize;

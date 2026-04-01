@@ -32,6 +32,9 @@ public class PlayerStatSO : ScriptableObject
     [Tooltip("곡괭이/드릴이 닿는 작업 반경")]
     public float DrillRange = 1.0f;
 
+    [Tooltip("드릴의 폭발반경")]
+    public float DrillExplosionRadius = 1.0f;
+
     [Header("Jetpack System")]
     [Tooltip("비행을 위한 제트팩 추진력")]
     public float JetpackThrust = 5f;

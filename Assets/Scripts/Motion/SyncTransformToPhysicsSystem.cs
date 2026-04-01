@@ -22,7 +22,7 @@ namespace CoreDriller.Motion
         {
             // foreach (var (bodyHandle, localTransform) in SystemAPI.Query<RefRO<PhysicsBodyHandle>, RefRW<LocalTransform>>())
             // {
-            //     localTransform.ValueRW.Position = new float3(bodyHandle.ValueRO.Body.position.x, bodyHandle.ValueRO.Body.position.y, localTransform.ValueRO.Position.z);
+            // localTransform.ValueRW.Position = new float3(bodyHandle.ValueRO.Body.position.x, bodyHandle.ValueRO.Body.position.y, localTransform.ValueRO.Position.z);
             // }
             var syncJob = new SyncTransformJob();
             state.Dependency = syncJob.ScheduleParallel(state.Dependency);

@@ -1,6 +1,8 @@
 using System;
+using Unity.Entities;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using CoreDriller.Player.StatSystem;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -37,6 +39,44 @@ public class PlayerManager : MonoBehaviour
         {
             Debug.LogError("PlayerStatSO가 할당되지 않았습니다! PlayerManager에 PlayerStatSO를 할당해주세요.");
         }
+    }
+
+    void Start()
+    {
+        // Manager에서 읽은 PlayerStat으로 ECS 컴포넌트들을 가진 엔티티를 생성합니다. (싱글톤처럼 활용 가능)
+        EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        Entity statEntity = entityManager.CreateEntity();
+
+        entityManager.AddComponentData(statEntity, new PlayerDrillData
+        {
+            DrillPower = CurrentStats.DrillPower,
+            DrillSpeed = CurrentStats.DrillSpeed,
+            DrillFuelConsumption = CurrentStats.DrillFuelConsumption,
+            DigCooldown = CurrentStats.DigCooldown,
+            DrillRange = CurrentStats.DrillRange,
+            DrillExplosionRadius = CurrentStats.DrillExplosionRadius
+        });
+
+        entityManager.AddComponentData(statEntity, new PlayerMovementData
+        {
+            MoveSpeed = CurrentStats.MoveSpeed,
+            MaxFuel = CurrentStats.MaxFuel,
+            CurrentFuel = CurrentStats.MaxFuel,
+            JetpackThrust = CurrentStats.JetpackThrust,
+            JetpackFuelConsumption = CurrentStats.JetpackFuelConsumption
+        });
+
+        entityManager.AddComponentData(statEntity, new PlayerHealthData
+        {
+            MaxHealth = CurrentStats.MaxHealth,
+            CurrentHealth = CurrentStats.MaxHealth
+        });
+
+        entityManager.AddComponentData(statEntity, new PlayerInventoryData
+        {
+            InventorySize = CurrentStats.InventorySize,
+            ItemPickupRange = CurrentStats.ItemPickupRange
+        });
     }
 
     void OnEnable()

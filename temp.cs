@@ -1,1 +1,1 @@
-using Unity.Entities;using UnityEngine.LowLevelPhysics2D; public class Test { void Foo(PhysicsBody b) { b.Dispose(); PhysicsWorld.defaultWorld.DestroyBody(b); } }
+using Unity.Entities;using UnityEngine.LowLevelPhysics2D; public class Test { void Foo(PhysicsBody b) { b.Dispose(); PhysicsWorld.defaultWorld.DestroyBody(b); } }using UnityEngine; using UnityEngine.LowLevelPhysics2D; public class TempTest { void Test() { PhysicsWorld.defaultWorld.Raycast(); } }
