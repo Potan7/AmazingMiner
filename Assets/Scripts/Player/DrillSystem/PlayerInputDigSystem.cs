@@ -51,17 +51,27 @@ namespace CoreDriller.Player.DrillSystem
             float2 hitPosition = (hits.Length > 0) ? hits[0].point : playerPosition + (normalizedDir * raycastDist);
             hits.Dispose();
 
-            // 5. ECB를 사용하여 엔티티 생성 (성능 최적화)
-            var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
-                               .CreateCommandBuffer(state.WorldUnmanaged);
+            var bufferEntity = SystemAPI.GetSingletonEntity<DigEvent>();
+            var digBuffer = SystemAPI.GetBuffer<DigEvent>(bufferEntity);
 
-            var entity = ecb.CreateEntity();
-            ecb.AddComponent(entity, new DigEvent
+            digBuffer.Add(new DigEvent
             {
                 WorldPosition = hitPosition,
                 Radius = playerDrillData.DrillExplosionRadius,
                 DigPower = playerDrillData.DrillPower
             });
+
+            // // 5. ECB를 사용하여 엔티티 생성 (성능 최적화)
+            // var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
+            //                    .CreateCommandBuffer(state.WorldUnmanaged);
+
+            // var entity = ecb.CreateEntity();
+            // ecb.AddComponent(entity, new DigEvent
+            // {
+            //     WorldPosition = hitPosition,
+            //     Radius = playerDrillData.DrillExplosionRadius,
+            //     DigPower = playerDrillData.DrillPower
+            // });
         }
     }
 }

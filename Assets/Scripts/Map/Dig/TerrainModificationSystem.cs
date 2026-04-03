@@ -13,18 +13,24 @@ namespace CoreDriller.Map.Dig
         private const float BlockSize = 0.5f;
 
         [BurstCompile]
+        public void OnCreate(ref SystemState state)
+        {
+            // 시스템 시작 시 IBufferElementData를 담을 글로벌 이벤트 엔티티(싱글톤) 생성
+            var eventEntity = state.EntityManager.CreateEntity();
+            state.EntityManager.AddBuffer<DigEvent>(eventEntity);
+
+            state.RequireForUpdate<DigEvent>();
+        }
+
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            // 1. 이번 프레임에 발생한 모든 채굴 이벤트를 수집합니다.
-            var digEvents = new NativeList<DigEvent>(Allocator.TempJob);
-            foreach (var digEvent in SystemAPI.Query<RefRO<DigEvent>>())
-            {
-                digEvents.Add(digEvent.ValueRO);
-            }
+            // 1. 이벤트 버퍼를 보관한 싱글톤 엔티티 확보
+            var bufferEntity = SystemAPI.GetSingletonEntity<DigEvent>();
+            var digBuffer = SystemAPI.GetBuffer<DigEvent>(bufferEntity);
 
-            if (digEvents.Length == 0)
+            if (digBuffer.IsEmpty)
             {
-                digEvents.Dispose();
                 return;
             }
 
@@ -32,27 +38,22 @@ namespace CoreDriller.Map.Dig
             var ecb = new EntityCommandBuffer(Allocator.TempJob);
             var modJob = new TerrainModificationJob
             {
-                DigEvents = digEvents.AsArray(),
+                DigEvents = digBuffer.AsNativeArray(), 
                 ChunkSize = ChunkSize,
                 BlockSize = BlockSize,
                 ECB = ecb.AsParallelWriter()
             };
 
             state.Dependency = modJob.ScheduleParallel(state.Dependency);
-            state.Dependency.Complete();
+            state.Dependency.Complete(); // Job 완료 대기
 
-            // 3. 수정된 청크들에 대해 물리 갱신 태그 추가 (ECB를 통해 안전하게 전달)
-            // 물리 바디 파괴는 TerrainPhysicsSystem에서 PhysicsNeedsUpdateTag를 확인하여 처리합니다.
+            // 3. 구조적 변화(Playback)가 일어나기 전에 이벤트를 먼저 클리어합니다.
+            // Playback 이후에는 digBuffer가 무효화(Invalidated)되어 접근 시 예외가 발생합니다.
+            digBuffer.Clear();
 
-            // 4. 이벤트 엔티티 삭제
-            foreach (var (_, entity) in SystemAPI.Query<RefRO<DigEvent>>().WithEntityAccess())
-            {
-                ecb.DestroyEntity(entity);
-            }
-
+            // 4. 수정된 청크들에 대해 물리 갱신 태그 추가 (Structural Change 발생)
             ecb.Playback(state.EntityManager);
             ecb.Dispose();
-            digEvents.Dispose();
         }
     }
 
@@ -64,10 +65,10 @@ namespace CoreDriller.Map.Dig
         public float BlockSize;
         public EntityCommandBuffer.ParallelWriter ECB;
 
-        private void Execute(Entity entity, [ChunkIndexInQuery] int chunkIndex, RefRO<ChunkComponent> chunk, DynamicBuffer<BlockBuffer> blocks)
+        public void Execute(Entity entity, [ChunkIndexInQuery] int chunkIndex, in ChunkComponent chunk, ref DynamicBuffer<BlockBuffer> blocks)
         {
             float chunkWorldSize = ChunkSize * BlockSize;
-            int2 coord = chunk.ValueRO.Coordinate;
+            int2 coord = chunk.Coordinate;
             float chunkStartX = coord.x * chunkWorldSize;
             float chunkStartY = -coord.y * chunkWorldSize;
 
