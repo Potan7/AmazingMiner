@@ -10,7 +10,11 @@ namespace CoreDriller.Map.Rendering
 
     // 2. 정점/삼각형 버퍼 컴포넌트: 각 청크 엔티티에 붙어서 GPU에 보낼 데이터를 담습니다.
     [InternalBufferCapacity(0)]
-    public struct ChunkVertex : IBufferElementData { public float3 Position; }
+    public struct ChunkVertex : IBufferElementData
+    {
+        public float3 Position;
+        public float2 UV;
+    }
     [InternalBufferCapacity(0)]
     public struct ChunkTriangle : IBufferElementData { public int Value; }
 

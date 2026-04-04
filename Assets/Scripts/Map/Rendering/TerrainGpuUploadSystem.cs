@@ -5,6 +5,7 @@ using UnityEngine;
 using Unity.Rendering;
 using Unity.Entities.Graphics;
 using System;
+using UnityEngine.Rendering;
 
 namespace CoreDriller.Map.Rendering
 {
@@ -63,7 +64,7 @@ namespace CoreDriller.Map.Rendering
                     var renderMeshDescription = new RenderMeshDescription
                     {
                         FilterSettings = RenderFilterSettings.Default,
-                        LightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off
+                        LightProbeUsage = LightProbeUsage.Off
                     };
 
                     RenderMeshUtility.AddComponents(
@@ -86,8 +87,23 @@ namespace CoreDriller.Map.Rendering
                 if (vertices.Length > 0 && triangles.Length > 0)
                 {
                     targetMesh.Clear();
-                    targetMesh.SetVertices(vertices.Reinterpret<Vector3>().AsNativeArray());
-                    targetMesh.SetIndices(triangles.Reinterpret<int>().AsNativeArray(), MeshTopology.Triangles, 0);
+
+                    // 정점 레이아웃 설정 (Position: float3, TexCoord0: float2)
+                    var layout = new[]
+                    {
+                        new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3),
+                        new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float32, 2)
+                    };
+
+                    targetMesh.SetVertexBufferParams(vertices.Length, layout);
+                    targetMesh.SetVertexBufferData(vertices.AsNativeArray(), 0, 0, vertices.Length);
+
+                    targetMesh.SetIndexBufferParams(triangles.Length, IndexFormat.UInt32);
+                    targetMesh.SetIndexBufferData(triangles.AsNativeArray(), 0, 0, triangles.Length);
+
+                    targetMesh.subMeshCount = 1;
+                    targetMesh.SetSubMesh(0, new SubMeshDescriptor(0, triangles.Length));
+
                     targetMesh.RecalculateNormals();
                     targetMesh.RecalculateBounds();
 

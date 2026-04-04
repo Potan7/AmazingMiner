@@ -15,11 +15,12 @@ MonoBehaviour:
   MaxHealth: 100
   MaxFuel: 100
   MoveSpeed: 5
-  DrillPower: 5
+  DrillPower: 10
   DrillSpeed: 1
   DrillFuelConsumption: 1
   DigCooldown: 0.5
   DrillRange: 10
+  DrillExplosionRadius: 3
   JetpackThrust: 50
   JetpackFuelConsumption: 1
   InventorySize: 5

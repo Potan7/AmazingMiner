@@ -33,13 +33,21 @@ namespace CoreDriller.Map
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
+            // 광물 생성 규칙 설정 (나중에는 외부 데이터에서 가져오게 됨)
+            // Frequency를 낮춰 덩어리를 크게 만들고, Threshold를 높여 희귀도를 올렸습니다.
+            var mineralRules = new NativeArray<MineralRule>(4, Allocator.Temp);
+            mineralRules[0] = new MineralRule { BlockType = BlockTypes.Coal, MinDepth = 0.05f, MaxDepth = 0.5f, Frequency = 0.08f, Threshold = 0.75f, Hardness = 2.0f };
+            mineralRules[1] = new MineralRule { BlockType = BlockTypes.Iron, MinDepth = 0.15f, MaxDepth = 0.7f, Frequency = 0.07f, Threshold = 0.82f, Hardness = 4.0f };
+            mineralRules[2] = new MineralRule { BlockType = BlockTypes.Copper, MinDepth = 0.3f, MaxDepth = 0.9f, Frequency = 0.06f, Threshold = 0.85f, Hardness = 5.0f };
+            mineralRules[3] = new MineralRule { BlockType = BlockTypes.Gold, MinDepth = 0.6f, MaxDepth = 1.0f, Frequency = 0.05f, Threshold = 0.92f, Hardness = 8.0f };
+
             // 1. GenerateStageRequest를 가진 엔티티를 찾습니다.
             foreach (var (request, entity) in SystemAPI.Query<RefRO<GenerateStageRequest>>().WithEntityAccess())
             {
                 UnityEngine.Debug.Log($"[GenerateTerrainSystem] 지형 생성 시작! 시드: {request.ValueRO.Seed}");
 
                 // 2. 로직 실행
-                Generate(ref ecb, request.ValueRO);
+                Generate(ref ecb, request.ValueRO, mineralRules);
 
                 // 3. 처리 끝났으므로 요청 엔티티 파괴
                 ecb.DestroyEntity(entity);
@@ -47,10 +55,11 @@ namespace CoreDriller.Map
 
             ecb.Playback(state.EntityManager);
             ecb.Dispose();
+            mineralRules.Dispose();
         }
 
 
-        private void Generate(ref EntityCommandBuffer ecb, in GenerateStageRequest request)
+        private void Generate(ref EntityCommandBuffer ecb, in GenerateStageRequest request, NativeArray<MineralRule> mineralRules)
         {
             int chunkWidth = math.max(0, request.Width);
             int chunkDepth = math.max(0, request.Depth);
@@ -81,37 +90,67 @@ namespace CoreDriller.Map
                     ecb.AddComponent<Map.Rendering.MeshNeedsUpdateTag>(chunkEntity);
                     ecb.AddComponent<PhysicsNeedsUpdateTag>(chunkEntity);
 
-                    GenerateChunkTerrain(ref blockBuffer, chunkX, chunkY, chunkWidth, chunkDepth, blockHardness);
+                    GenerateChunkTerrain(ref blockBuffer, chunkX, chunkY, chunkWidth, chunkDepth, blockHardness, request.Seed, mineralRules);
                 }
             }
         }
 
-        // 수직으로 깊은 맵 (테두리는 파괴 불가 벽, 내부는 꽉 찬 흙)
-        private void GenerateChunkTerrain(ref DynamicBuffer<BlockBuffer> blockBuffer, int chunkX, int chunkY, int chunkWidth, int chunkDepth, float blockHardness)
+        // 수직으로 깊은 맵 (테두리는 파괴 불가 벽, 내부는 흙과 광물 혼합)
+        private void GenerateChunkTerrain(ref DynamicBuffer<BlockBuffer> blockBuffer, int chunkX, int chunkY, int chunkWidth, int chunkDepth, float blockHardness, uint seed, NativeArray<MineralRule> mineralRules)
         {
+            float totalMaxDepthBlocks = chunkDepth * ChunkSize;
+
             for (int x = 0; x < ChunkSize; x++)
             {
                 for (int y = 0; y < ChunkSize; y++)
                 {
                     BlockData blockData = new BlockData();
 
-                    // 테두리 판별: 왼쪽 벽, 오른쪽 벽, 바닥
+                    // 테두리 판별
                     bool isLeftWall = (chunkX == 0 && x == 0);
                     bool isRightWall = (chunkX == chunkWidth - 1 && x == ChunkSize - 1);
                     bool isBottomWall = (chunkY == chunkDepth - 1 && y == 0);
 
-                    // 맨 윗단(지표면)의 테두리를 막을 것인가? 
-                    // 위는 보통 뚫어두지만, 지저로 떨어지게만 만들거라면 좌/우/하단만 막는 것이 일반적입니다.
                     if (isLeftWall || isRightWall || isBottomWall)
                     {
-                        blockData.BlockType = 2; // 파괴 불가 벽 (베드락 등)
+                        blockData.BlockType = BlockTypes.Bedrock;
                         blockData.Hardness = float.MaxValue;
                     }
                     else
                     {
-                        // 맵 내부는 모두 흙으로 꽉 채웁니다
-                        blockData.BlockType = 1; // 흙
+                        // 1. 기본 흙 설정
+                        blockData.BlockType = BlockTypes.Dirt;
                         blockData.Hardness = blockHardness;
+
+                        // 2. 광물 배치 로직 (심도 비율 계산)
+                        float currentDepthBlocks = (chunkY * ChunkSize) + y;
+                        float depthRatio = currentDepthBlocks / totalMaxDepthBlocks;
+
+                        // 월드 좌표 기반 노이즈 시드 생성
+                        float2 worldPos = new float2((chunkX * ChunkSize) + x, currentDepthBlocks);
+
+                        // 각 광물 규칙 검사 (가장 희귀한 광물부터 덮어씀)
+                        for (int i = 0; i < mineralRules.Length; i++)
+                        {
+                            var rule = mineralRules[i];
+
+                            // 심도 범위 체크
+                            if (depthRatio < rule.MinDepth || depthRatio > rule.MaxDepth) continue;
+
+                            // Simplex Noise
+                            // 좌표에 주파수를 곱하고 시드를 오프셋으로 사용
+                            float noiseVal = noise.snoise(worldPos * rule.Frequency + (float)seed * 0.123f);
+
+                            // 0~1 범위로 정규화 (snoise는 -1~1 반환)
+                            float normalizedNoise = (noiseVal + 1f) * 0.5f;
+
+                            if (normalizedNoise > rule.Threshold)
+                            {
+                                blockData.BlockType = rule.BlockType;
+                                blockData.Hardness = rule.Hardness;
+                                // 더 희귀한 광물을 아래에 배치하려면 i가 큰 쪽을 나중에 덮어씌움
+                            }
+                        }
                     }
 
                     blockBuffer.Add(new BlockBuffer { Value = blockData });
