@@ -81,13 +81,17 @@ namespace CoreDriller.Map.Rendering
                 }
 
                 // 3. 🚨 중요: 구조적 변경이 끝난 후 '새로' 버퍼를 가져옴 (핸들 무효화 방지)
+                // 또한, 이전 Job(TerrainMeshBuilderSystem)이 완료될 때까지 기다려야 합니다.
+                this.Dependency.Complete(); 
+                
                 var vertices = EntityManager.GetBuffer<ChunkVertex>(entity);
                 var triangles = EntityManager.GetBuffer<ChunkTriangle>(entity);
 
+                // 빈 청크가 되더라도 메쉬를 Clear하여 그래픽을 지워야 합니다.
+                targetMesh.Clear();
+
                 if (vertices.Length > 0 && triangles.Length > 0)
                 {
-                    targetMesh.Clear();
-
                     // 정점 레이아웃 설정 (Position: float3, TexCoord0: float2)
                     var layout = new[]
                     {
@@ -109,6 +113,11 @@ namespace CoreDriller.Map.Rendering
 
                     // ECS 엔티티의 가시성 컬링 크기도 실제 메쉬 크기에 맞춰 갱신
                     EntityManager.SetComponentData(entity, new RenderBounds { Value = targetMesh.bounds.ToAABB() });
+                }
+                else
+                {
+                    // 빈 청크일 경우 Bounds를 0으로 초기화
+                    EntityManager.SetComponentData(entity, new RenderBounds { Value = new AABB { Center = float3.zero, Extents = float3.zero } });
                 }
 
                 // 4. 태그 제거는 ECB에 담아 루프가 끝난 후 일괄 처리 (다음 루프의 핸들 보호)
