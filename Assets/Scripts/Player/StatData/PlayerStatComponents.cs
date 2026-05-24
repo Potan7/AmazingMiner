@@ -10,6 +10,7 @@ namespace CoreDriller.Player.StatSystem
         public float MaxCooldown;    // 최대 쿨타임 (설정값)
         public float CurrentTimer;   // 남은 시간 (상태값)
         public bool IsActive;        // 현재 드릴 사용 중 여부
+        public Unity.Mathematics.float2 LastHitPosition; // 최신 굴착 레이캐스트 타격 지점
 
         public float DrillPower;
         public float DrillSpeed;

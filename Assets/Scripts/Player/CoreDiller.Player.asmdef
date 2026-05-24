@@ -11,7 +11,8 @@
         "GUID:c4272326fd7d92943a043f5dc890fa8b",
         "GUID:8819f35a0fc84499b990e90a4ca1911f",
         "GUID:341678a6198491c42be9630e33096a09",
-        "CoreDriller.Map"
+        "CoreDriller.Map",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
