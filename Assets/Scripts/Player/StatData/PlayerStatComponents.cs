@@ -43,4 +43,13 @@ namespace CoreDriller.Player.StatSystem
         public float ItemPickupRange; // 아이템 픽업 범위 (설정값)
     }
 
+    [InternalBufferCapacity(8)]
+    public struct InventoryBuffer : IBufferElementData
+    {
+        public int ItemType;
+        public int Count;
+    }
+
+    // 연료 고갈 시 강제 귀환을 처리하기 위한 태그
+    public struct ForcedReturnTag : IComponentData {}
 }

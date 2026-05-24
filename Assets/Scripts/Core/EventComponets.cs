@@ -8,7 +8,9 @@ namespace CoreDriller
     {
         public float2 WorldPosition; // 터지는 중심점
         public float Radius;         // 파괴 반경 (드릴: 0.5f, 폭탄: 3.0f 등)
-        public float DigPower;       // 파괴력 (블록의 Hardness와 비교)
+        public float DigPower;       // 파괴력 (블록의 Hardness와 비교, P)
+        public float DigSpeed;       // 채굴 속도 가중치 (S)
+        public float DeltaTime;      // 프레임 델타 타임
     }
 
     public struct MouseInputData : IComponentData

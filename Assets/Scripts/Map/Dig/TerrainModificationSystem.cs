@@ -96,7 +96,9 @@ namespace CoreDriller.Map.Dig
                     int y = i % ChunkSize;
 
                     var blockData = blocks[i].Value;
-                    if (blockData.BlockType == 0 || blockData.Hardness > ev.DigPower) continue;
+                    
+                    // 소프트 게이팅: 드릴 파워 P (ev.DigPower)가 블록 경도 H (blockData.Hardness)보다 작거나 같으면 채굴 속도가 0 이하가 됨
+                    if (blockData.BlockType == 0 || ev.DigPower <= blockData.Hardness) continue;
 
                     float blockWorldX = chunkStartX + (x * BlockSize) + (BlockSize * 0.5f);
                     float blockWorldY = chunkStartY + (y * BlockSize) + (BlockSize * 0.5f);
@@ -104,9 +106,19 @@ namespace CoreDriller.Map.Dig
                     float2 dist = centerPos - new float2(blockWorldX, blockWorldY);
                     if (math.lengthsq(dist) <= radiusSq)
                     {
-                        blockData.BlockType = 0;
+                        // 기획서 2.1절 채굴 방정식 적용: R = ((P - H) * S) / T
+                        float R = ((ev.DigPower - blockData.Hardness) * ev.DigSpeed) / blockData.MiningTime;
+                        float damage = R * ev.DeltaTime;
+
+                        blockData.CurrentHP -= damage;
+
+                        if (blockData.CurrentHP <= 0f)
+                        {
+                            blockData.BlockType = 0;
+                            chunkModified = true; // 블록이 완전히 파괴되었을 때만 렌더링/물리 리빌드 트리거
+                        }
+
                         blocks[i] = new BlockBuffer { Value = blockData };
-                        chunkModified = true;
                     }
                 }
             }

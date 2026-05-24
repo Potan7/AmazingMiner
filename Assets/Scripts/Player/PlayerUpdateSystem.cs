@@ -3,12 +3,14 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using CoreDriller.Motion.Movement;
+using CoreDriller.Player.StatSystem;
 
 namespace CoreDriller.Player
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class PlayerUpdateSystem : SystemBase
     {
+
         protected override void OnCreate()
         {
             RequireForUpdate<PlayerTag>();
@@ -26,27 +28,51 @@ namespace CoreDriller.Player
             var currentStats = PlayerManager.Instance.CurrentStats;
 
             var playerEntity = SystemAPI.GetSingletonEntity<PlayerTag>();
+            float deltaTime = SystemAPI.Time.DeltaTime;
 
-            // 3. 입력값을 컴포넌트에 업데이트
+            // 3. 연료 소모 및 제트팩/드릴 구동 통제
+            bool canJump = currentJump;
+            if (SystemAPI.TryGetSingletonRW<PlayerMovementData>(out var movementData))
+            {
+                // 제트팩 비행 시 연료 소모
+                if (currentJump && movementData.ValueRO.CurrentFuel > 0f)
+                {
+                    movementData.ValueRW.CurrentFuel = math.max(0f, movementData.ValueRW.CurrentFuel - movementData.ValueRO.JetpackFuelConsumption * deltaTime);
+                }
+
+                // 드릴 굴착 시 연료 소모 (마우스 왼쪽 클릭 중)
+                if (SystemAPI.TryGetSingleton<MouseInputData>(out var mouseInput) && mouseInput.IsLeftClickPressed && movementData.ValueRO.CurrentFuel > 0f)
+                {
+                    if (SystemAPI.TryGetSingleton<PlayerDrillData>(out var drillData))
+                    {
+                        movementData.ValueRW.CurrentFuel = math.max(0f, movementData.ValueRW.CurrentFuel - drillData.DrillFuelConsumption * deltaTime);
+                    }
+                }
+
+                // 연료 유무에 따른 점프 가능 여부 설정
+                canJump = currentJump && movementData.ValueRO.CurrentFuel > 0f;
+            }
+
+            // 4. 입력값을 컴포넌트에 업데이트
             if (SystemAPI.HasComponent<MovementInput>(playerEntity))
             {
                 var movementInput = SystemAPI.GetComponentRW<MovementInput>(playerEntity);
                 movementInput.ValueRW.Direction = currentMove;
-                movementInput.ValueRW.Jump = currentJump;
+                movementInput.ValueRW.Jump = canJump;
             }
 
-            // 이하는 스탯 업데이트
-            if (!PlayerManager.Instance.StatIsDirty) return;
-
-
-            if (SystemAPI.HasComponent<MovementStats>(playerEntity))
+            // 스탯 업데이트
+            if (PlayerManager.Instance.StatIsDirty)
             {
-                var movementStats = SystemAPI.GetComponentRW<MovementStats>(playerEntity);
-                movementStats.ValueRW.MoveSpeed = currentStats.MoveSpeed;
-                movementStats.ValueRW.JumpForce = currentStats.JetpackThrust;
-            }
+                if (SystemAPI.HasComponent<MovementStats>(playerEntity))
+                {
+                    var movementStats = SystemAPI.GetComponentRW<MovementStats>(playerEntity);
+                    movementStats.ValueRW.MoveSpeed = currentStats.MoveSpeed;
+                    movementStats.ValueRW.JumpForce = currentStats.JetpackThrust;
+                }
 
-            PlayerManager.Instance.StatIsDirty = false; // ?�데?�트 ?�료 ???�티 ?�래�?리셋
+                PlayerManager.Instance.StatIsDirty = false;
+            }
         }
     }
 }

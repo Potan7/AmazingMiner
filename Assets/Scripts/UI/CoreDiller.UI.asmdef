@@ -1,5 +1,5 @@
 {
-    "name": "CoreDriller.Player",
+    "name": "CoreDriller.UI",
     "rootNamespace": "",
     "references": [
         "GUID:734d92eba21c94caba915361bd5ac177",
@@ -11,7 +11,11 @@
         "GUID:c4272326fd7d92943a043f5dc890fa8b",
         "GUID:8819f35a0fc84499b990e90a4ca1911f",
         "GUID:341678a6198491c42be9630e33096a09",
-        "CoreDriller.Map"
+        "GUID:ec415182bde379543ad17e8e0686873d",
+        "GUID:9d238b4cf65f283419d23fbb4057049d",
+        "GUID:2bafac87e7f4b9b418d9448d219b01ab",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

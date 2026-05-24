@@ -35,11 +35,12 @@ namespace CoreDriller.Map
 
             // 광물 생성 규칙 설정 (나중에는 외부 데이터에서 가져오게 됨)
             // Frequency를 낮춰 덩어리를 크게 만들고, Threshold를 높여 희귀도를 올렸습니다.
-            var mineralRules = new NativeArray<MineralRule>(4, Allocator.Temp);
-            mineralRules[0] = new MineralRule { BlockType = BlockTypes.Coal, MinDepth = 0.05f, MaxDepth = 0.5f, Frequency = 0.08f, Threshold = 0.75f, Hardness = 2.0f };
-            mineralRules[1] = new MineralRule { BlockType = BlockTypes.Iron, MinDepth = 0.15f, MaxDepth = 0.7f, Frequency = 0.07f, Threshold = 0.82f, Hardness = 4.0f };
-            mineralRules[2] = new MineralRule { BlockType = BlockTypes.Copper, MinDepth = 0.3f, MaxDepth = 0.9f, Frequency = 0.06f, Threshold = 0.85f, Hardness = 5.0f };
-            mineralRules[3] = new MineralRule { BlockType = BlockTypes.Gold, MinDepth = 0.6f, MaxDepth = 1.0f, Frequency = 0.05f, Threshold = 0.92f, Hardness = 8.0f };
+            var mineralRules = new NativeArray<MineralRule>(5, Allocator.Temp);
+            mineralRules[0] = new MineralRule { BlockType = BlockTypes.Coal, MinDepth = 0.05f, MaxDepth = 0.5f, Frequency = 0.08f, Threshold = 0.75f, Hardness = 1.0f, MiningTime = 1.5f, MaxHP = 1.0f };
+            mineralRules[1] = new MineralRule { BlockType = BlockTypes.Iron, MinDepth = 0.15f, MaxDepth = 0.7f, Frequency = 0.07f, Threshold = 0.82f, Hardness = 2.0f, MiningTime = 2.5f, MaxHP = 1.0f };
+            mineralRules[2] = new MineralRule { BlockType = BlockTypes.Copper, MinDepth = 0.3f, MaxDepth = 0.9f, Frequency = 0.06f, Threshold = 0.85f, Hardness = 2.0f, MiningTime = 2.5f, MaxHP = 1.0f };
+            mineralRules[3] = new MineralRule { BlockType = BlockTypes.Gold, MinDepth = 0.6f, MaxDepth = 1.0f, Frequency = 0.05f, Threshold = 0.92f, Hardness = 5.0f, MiningTime = 4.0f, MaxHP = 1.0f };
+            mineralRules[4] = new MineralRule { BlockType = BlockTypes.Abyssite, MinDepth = 0.85f, MaxDepth = 1.0f, Frequency = 0.04f, Threshold = 0.95f, Hardness = 10.0f, MiningTime = 8.0f, MaxHP = 1.0f };
 
             // 1. GenerateStageRequest를 가진 엔티티를 찾습니다.
             foreach (var (request, entity) in SystemAPI.Query<RefRO<GenerateStageRequest>>().WithEntityAccess())
@@ -115,12 +116,18 @@ namespace CoreDriller.Map
                     {
                         blockData.BlockType = BlockTypes.Bedrock;
                         blockData.Hardness = float.MaxValue;
+                        blockData.MiningTime = float.MaxValue;
+                        blockData.MaxHP = float.MaxValue;
+                        blockData.CurrentHP = float.MaxValue;
                     }
                     else
                     {
-                        // 1. 기본 흙 설정
+                        // 1. 기본 흙 설정 (T1: 경도 0.5 * 난이도 보정, 시간 1.0, HP 1.0)
                         blockData.BlockType = BlockTypes.Dirt;
-                        blockData.Hardness = blockHardness;
+                        blockData.Hardness = 0.5f * blockHardness;
+                        blockData.MiningTime = 1.0f;
+                        blockData.MaxHP = 1.0f;
+                        blockData.CurrentHP = 1.0f;
 
                         // 2. 광물 배치 로직 (심도 비율 계산)
                         float currentDepthBlocks = (chunkY * ChunkSize) + y;
@@ -148,6 +155,9 @@ namespace CoreDriller.Map
                             {
                                 blockData.BlockType = rule.BlockType;
                                 blockData.Hardness = rule.Hardness;
+                                blockData.MiningTime = rule.MiningTime;
+                                blockData.MaxHP = rule.MaxHP;
+                                blockData.CurrentHP = rule.MaxHP;
                                 // 더 희귀한 광물을 아래에 배치하려면 i가 큰 쪽을 나중에 덮어씌움
                             }
                         }

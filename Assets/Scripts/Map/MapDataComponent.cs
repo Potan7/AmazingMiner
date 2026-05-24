@@ -21,7 +21,10 @@ namespace CoreDriller.Map
     public struct BlockData : IComponentData
     {
         public int BlockType;
-        public float Hardness;
+        public float Hardness;    // 채굴 경도 (H)
+        public float MiningTime;  // 기본 소요 시간 (T)
+        public float MaxHP;       // 최대 내구도
+        public float CurrentHP;   // 현재 남은 내구도
     }
 
     // 광물 생성 규칙을 정의하는 구조체
@@ -33,6 +36,8 @@ namespace CoreDriller.Map
         public float Frequency;   // 노이즈 주파수 (덩어리 크기 결정)
         public float Threshold;   // 생성 문턱값 (높을수록 희귀함)
         public float Hardness;    // 광물의 단단함
+        public float MiningTime;  // 기본 소요 시간 (T)
+        public float MaxHP;       // 기본 최대 HP
     }
 
     // 하나의 청크를 관리하는 엔티티에 붙일 컴포넌트

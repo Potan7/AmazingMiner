@@ -28,9 +28,28 @@ namespace CoreDriller.Player.DrillSystem
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            // 1. 필요한 데이터가 없으면 즉시 종료 (Early Return)
-            if (!SystemAPI.TryGetSingleton<MouseInputData>(out var mouseInput) || !mouseInput.IsLeftClickPressed) return;
+            // 1. 드릴 데이터 싱글톤 확보
             if (!SystemAPI.TryGetSingleton<PlayerDrillData>(out var playerDrillData)) return;
+
+            float deltaTime = SystemAPI.Time.DeltaTime;
+
+            // 드릴 쿨타임 타이머 감산 처리
+            if (playerDrillData.CurrentTimer > 0f)
+            {
+                playerDrillData.CurrentTimer = math.max(0f, playerDrillData.CurrentTimer - deltaTime);
+                SystemAPI.SetSingleton(playerDrillData);
+            }
+
+            // 필요한 인풋 및 스탯 싱글톤 검사
+            if (!SystemAPI.TryGetSingleton<MouseInputData>(out var mouseInput) || !mouseInput.IsLeftClickPressed) return;
+            if (SystemAPI.TryGetSingleton<PlayerMovementData>(out var movementData) && movementData.CurrentFuel <= 0f) return;
+
+            // 쿨타임이 아직 도래하지 않았다면 굴착 이벤트 미발생
+            if (playerDrillData.CurrentTimer > 0f) return;
+
+            // 쿨타임 리셋 및 싱글톤 갱신
+            playerDrillData.CurrentTimer = playerDrillData.DigCooldown;
+            SystemAPI.SetSingleton(playerDrillData);
 
             // 2. 플레이어 위치 가져오기 (SingletonEntity 활용)
             var playerEntity = SystemAPI.GetSingletonEntity<PlayerTag>();
@@ -58,7 +77,9 @@ namespace CoreDriller.Player.DrillSystem
             {
                 WorldPosition = hitPosition,
                 Radius = playerDrillData.DrillExplosionRadius,
-                DigPower = playerDrillData.DrillPower
+                DigPower = playerDrillData.DrillPower,
+                DigSpeed = playerDrillData.DrillSpeed,
+                DeltaTime = SystemAPI.Time.DeltaTime
             });
 
             // // 5. ECB를 사용하여 엔티티 생성 (성능 최적화)
