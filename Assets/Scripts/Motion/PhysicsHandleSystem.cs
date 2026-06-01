@@ -1,4 +1,4 @@
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -26,8 +26,16 @@ namespace CoreDriller.Motion
             {
                 PhysicsWorld world = PhysicsWorld.defaultWorld;
                 PhysicsBody body = world.CreateBody(bodyInfo.ValueRO.BodyDefinition);
-                body.CreateShape(bodyInfo.ValueRO.CircleGeometry, bodyInfo.ValueRO.ShapeDefinition);
 
+                switch (bodyInfo.ValueRO.ColliderType)
+                {
+                    case ColliderShapeType.Circle:
+                        body.CreateShape(bodyInfo.ValueRO.CircleGeometry, bodyInfo.ValueRO.ShapeDefinition);
+                        break;
+                    case ColliderShapeType.Capsule:
+                        body.CreateShape(bodyInfo.ValueRO.CapsuleGeometry, bodyInfo.ValueRO.ShapeDefinition);
+                        break;
+                }
                 body.position = localTransform.ValueRO.Position.xy;
 
                 ecb.AddComponent(entity, new PhysicsBodyHandle() { Body = body });

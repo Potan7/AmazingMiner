@@ -38,7 +38,27 @@
 ## 5. 현재 프로젝트 상태 (Current State)
 - **지형 생성:** Perlin Noise 기반 16x16 `BlockBuffer` 청크 생성 및 베드락 테두리 구현 완료.
 - **렌더링:** `BlockMeshJob` 기반의 쿼드 메쉬 생성 및 렌더링 파이프라인 구축.
-- **진행 중:** 마우스 클릭 좌표를 ECS 월드로 변환하여 특정 블록을 파괴하고 메쉬/물리를 업데이트하는 '채굴(Digging) 로직' 구현 중.
+- **진행 중:** 1x8 크랙 스프라이트 시트 기반 Dynamic Damage Decal 시스템 및 DOTS Hybrid Instancing 최적 렌더링(Draw Call 1회 통폐합) 완료.
+
+## 6. Unity CLI 사용 및 검증 가이드 (Unity CLI & Verification Guide)
+본 프로젝트는 **`unity-cli`** 도구를 통해 터미널 상에서 유니티 에디터를 완벽히 제어하고 컴파일 무결성을 보장합니다. 향후 모든 작업자는 변경 사항 반영 후 다음 검증 프로토콜을 필수로 준수해야 합니다.
+
+### 6.1. 상태 및 컴파일 무결성 검증
+* **상태 확인:** `unity-cli status` 명령어를 통해 에디터 연결 상태가 `ready`인지 확인합니다.
+* **코드 컴파일 검증:** C# 코드 수정 후 반드시 `unity-cli editor refresh --compile`을 실행하여 빌드 오류가 없는지 검증합니다.
+* **로그 확인:** 컴파일 에러 발생 시 `unity-cli console --type error --lines 10` 명령으로 신속히 콘솔 컴파일 에러를 수집하고 자가 진단합니다.
+
+### 6.2. 주요 제어 명령어 목록
+* **플레이 모드 제어:**
+  * 진입: `unity-cli editor play --wait` (플레이 모드로 완전히 진입할 때까지 블로킹)
+  * 종료: `unity-cli editor stop`
+  * 일시 정지 토글: `unity-cli editor pause`
+* **동적 C# 스크립트 실행 (디버깅):**
+  * `unity-cli exec "UnityEngine.Time.time"`
+  * `unity-cli exec "UnityEngine.GameObject.Find(\"Player\").transform.position"`
+* **콘솔 관리:**
+  * 최근 로그 출력: `unity-cli console --lines 30`
+  * 콘솔 지우기: `unity-cli console --clear`
 
 ---
 **주의:** 본 파일은 프로젝트의 헌법과 같으므로, 모든 제안과 코드는 위 가이드라인을 엄격히 준수해야 합니다.

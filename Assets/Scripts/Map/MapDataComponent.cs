@@ -25,6 +25,7 @@ namespace CoreDriller.Map
         public float MiningTime;  // 기본 소요 시간 (T)
         public float MaxHP;       // 최대 내구도
         public float CurrentHP;   // 현재 남은 내구도
+        public bool HasDecal;     // 이 블록에 균열 데칼이 생성되었는지 여부
     }
 
     // 광물 생성 규칙을 정의하는 구조체

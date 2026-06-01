@@ -1,4 +1,4 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -15,6 +15,7 @@ namespace CoreDriller.Map.Rendering
         public float3 Position;
         public float2 UV;
     }
+
     [InternalBufferCapacity(0)]
     public struct ChunkTriangle : IBufferElementData { public int Value; }
 

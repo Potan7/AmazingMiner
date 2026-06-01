@@ -1,4 +1,4 @@
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using CoreDriller.Map.Rendering;
@@ -10,7 +10,7 @@ namespace CoreDriller.Map.Dig
     public partial struct TerrainModificationSystem : ISystem
     {
         private const int ChunkSize = 16;
-        private const float BlockSize = 0.5f;
+        private const float BlockSize = 0.6f;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
@@ -25,7 +25,13 @@ namespace CoreDriller.Map.Dig
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            // 1. 이벤트 버퍼를 보관한 싱글톤 엔티티 확보
+            // 1. 이벤트 버퍼 및 맵 설정(싱글톤) 확보
+            if (!SystemAPI.HasSingleton<MapConfigData>())
+            {
+                return; // MapConfigData가 베이킹 완료될 때까지 대기
+            }
+
+            var config = SystemAPI.GetSingleton<MapConfigData>();
             var bufferEntity = SystemAPI.GetSingletonEntity<DigEvent>();
             var digBuffer = SystemAPI.GetBuffer<DigEvent>(bufferEntity);
 
@@ -41,7 +47,8 @@ namespace CoreDriller.Map.Dig
                 DigEvents = digBuffer.AsNativeArray(), 
                 ChunkSize = ChunkSize,
                 BlockSize = BlockSize,
-                ECB = ecb.AsParallelWriter()
+                ECB = ecb.AsParallelWriter(),
+                DecalPrefab = config.DamageDecalPrefab
             };
 
             state.Dependency = modJob.ScheduleParallel(state.Dependency);
@@ -64,6 +71,7 @@ namespace CoreDriller.Map.Dig
         public int ChunkSize;
         public float BlockSize;
         public EntityCommandBuffer.ParallelWriter ECB;
+        public Entity DecalPrefab;
 
         public void Execute(Entity entity, [ChunkIndexInQuery] int chunkIndex, in ChunkComponent chunk, ref DynamicBuffer<BlockBuffer> blocks)
         {
@@ -112,9 +120,36 @@ namespace CoreDriller.Map.Dig
 
                         blockData.CurrentHP -= damage;
 
+                        // 데미지를 입었으나 완전히 깨지지는 않았고 아직 데칼이 안 붙은 경우 데칼 스폰
+                        if (blockData.CurrentHP < blockData.MaxHP && blockData.CurrentHP > 0f && !blockData.HasDecal && DecalPrefab != Entity.Null)
+                        {
+                            blockData.HasDecal = true;
+
+                            // 데칼 엔티티 생성
+                            var decal = ECB.Instantiate(chunkIndex, DecalPrefab);
+
+                            // 블록 월드 포지션 계산 (Z좌표는 블록보다 약간 앞인 -0.01f로 오버레이)
+                            float3 decalPos = new float3(blockWorldX, blockWorldY, -0.01f);
+                            ECB.SetComponent(chunkIndex, decal, Unity.Transforms.LocalTransform.FromPositionRotationScale(decalPos, quaternion.identity, BlockSize * 0.9f));
+
+                            // 매핑 및 태그 등록
+                            ECB.AddComponent(chunkIndex, decal, new DamageDecalTag 
+                            { 
+                                ChunkEntity = entity, 
+                                BlockIndex = i 
+                            });
+
+                            // UV Rect 초기 상태 바인딩 (1x8 시트의 첫 번째 프레임: ScaleX=0.125, ScaleY=1.0, OffsetX=0.0, OffsetY=0.0)
+                            ECB.AddComponent(chunkIndex, decal, new UVRect 
+                            { 
+                                Value = new float4(0.125f, 1f, 0f, 0f) 
+                            });
+                        }
+
                         if (blockData.CurrentHP <= 0f)
                         {
                             blockData.BlockType = 0;
+                            blockData.HasDecal = false; // 데칼이 없는 상태로 해제 (소멸 처리는 DamageDecalSystem에서 진행)
                             chunkModified = true; // 블록이 완전히 파괴되었을 때만 렌더링/물리 리빌드 트리거
                         }
 

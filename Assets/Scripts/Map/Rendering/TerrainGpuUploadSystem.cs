@@ -42,6 +42,7 @@ namespace CoreDriller.Map.Rendering
 
         protected override void OnUpdate()
         {
+
             // 1. 엔티티 배열 추출 (ToNativeArray 대신 복사본 사용으로 안전성 확보)
             using var entities = _updateQuery.ToEntityArray(Allocator.Temp);
             var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -74,13 +75,16 @@ namespace CoreDriller.Map.Rendering
                         renderMeshArray,
                         MaterialMeshInfo.FromRenderMeshArrayIndices(0, 0)
                     );
+
+                    // SpriteShader.shadergraph의 Hybrid Instanced 속성인 _UVRect에 바인딩할 초기값 설정 (1:1 풀 스케일, 오프셋 없음)
+                    EntityManager.AddComponentData(entity, new UVRect { Value = new float4(1f, 1f, 0f, 0f) });
                 }
                 else
                 {
                     targetMesh = EntityManager.GetComponentData<ChunkProceduralMesh>(entity).GeneratedMesh;
                 }
 
-                // 3. 🚨 중요: 구조적 변경이 끝난 후 '새로' 버퍼를 가져옴 (핸들 무효화 방지)
+                // 3. 중요: 구조적 변경이 끝난 후 '새로' 버퍼를 가져옴 (핸들 무효화 방지)
                 // 또한, 이전 Job(TerrainMeshBuilderSystem)이 완료될 때까지 기다려야 합니다.
                 this.Dependency.Complete(); 
                 

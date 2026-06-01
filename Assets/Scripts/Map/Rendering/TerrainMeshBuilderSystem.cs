@@ -22,7 +22,7 @@ namespace CoreDriller.Map.Rendering
             var marchingJob = new BlockMeshJob
             {
                 ChunkSize = 16,
-                CellSize = 0.5f
+                CellSize = 0.6f
             };
 
             state.Dependency = marchingJob.ScheduleParallel(state.Dependency);
@@ -102,12 +102,12 @@ namespace CoreDriller.Map.Rendering
             vertices.Add(new ChunkVertex { Position = d, UV = uvd });
 
             triangles.Add(new ChunkTriangle { Value = startIndex });
-            triangles.Add(new ChunkTriangle { Value = startIndex + 2 });
             triangles.Add(new ChunkTriangle { Value = startIndex + 1 });
+            triangles.Add(new ChunkTriangle { Value = startIndex + 2 });
 
             triangles.Add(new ChunkTriangle { Value = startIndex });
-            triangles.Add(new ChunkTriangle { Value = startIndex + 3 });
             triangles.Add(new ChunkTriangle { Value = startIndex + 2 });
+            triangles.Add(new ChunkTriangle { Value = startIndex + 3 });
         }
     }
 }

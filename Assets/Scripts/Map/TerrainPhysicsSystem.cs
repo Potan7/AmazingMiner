@@ -89,7 +89,7 @@ namespace CoreDriller.Map
     [UpdateAfter(typeof(GenerateTerrainSystem))]
     public partial struct TerrainPhysicsSystem : ISystem
     {
-        private const float CellSize = 0.5f; 
+        private const float CellSize = 0.6f; 
         private const int ChunkSize = 16;
         private const int MaxProcessedChunksPerFrame = 32; // 처리량 증가 (초기 생성 병목 해결)
 

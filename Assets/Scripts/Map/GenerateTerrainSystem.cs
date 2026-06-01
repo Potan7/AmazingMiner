@@ -19,7 +19,7 @@ namespace CoreDriller.Map
     public partial struct GenerateTerrainSystem : ISystem
     {
         private const int ChunkSize = 16;
-        private const float BlockSize = 0.5f;
+        private const float BlockSize = 0.6f;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)

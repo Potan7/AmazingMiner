@@ -1,20 +1,33 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using UnityEngine;
 using UnityEngine.LowLevelPhysics2D;
 
 namespace CoreDriller.Motion
 {
+    public enum ColliderShapeType
+    {
+        Circle,
+        Capsule
+    }
+
     class PhysicsBodyAuthoring : MonoBehaviour
     {
+        [Header("Physics Definitions")]
         public PhysicsBodyDefinition bodyDefinition;
         public PhysicsShapeDefinition shapeDefinition;
+
+        [Header("Collider Settings")]
+        public ColliderShapeType ColliderType;
         public CircleGeometry circleGeometry;
+        public CapsuleGeometry capsuleGeometry;
 
         void Reset()
         {
             bodyDefinition = PhysicsBodyDefinition.defaultDefinition;
             shapeDefinition = PhysicsShapeDefinition.defaultDefinition;
+
             circleGeometry = CircleGeometry.Create(0.5f); // 기본 반지름 0.5f로 설정
+            capsuleGeometry = CapsuleGeometry.Create(new Vector2(0, 0.5f), new Vector2(0, -0.5f), 0.5f); // 기본 길이 1.0f, 반지름 0.5f로 설정
         }
 
         class PhysicsBodyAuthoringBaker : Baker<PhysicsBodyAuthoring>
@@ -22,12 +35,24 @@ namespace CoreDriller.Motion
             public override void Bake(PhysicsBodyAuthoring authoring)
             {
                 Entity entity = GetEntity(TransformUsageFlags.Dynamic);
-                AddComponent(entity, new PhysicsBodyInformation()
+
+                PhysicsBodyInformation comp = new PhysicsBodyInformation()
                 {
                     BodyDefinition = authoring.bodyDefinition,
                     ShapeDefinition = authoring.shapeDefinition,
-                    CircleGeometry = authoring.circleGeometry
-                });
+                    ColliderType = authoring.ColliderType
+                };
+                switch (authoring.ColliderType)
+                {
+                    case ColliderShapeType.Circle:
+                        comp.CircleGeometry = authoring.circleGeometry;
+                        break;
+                    case ColliderShapeType.Capsule:
+                        comp.CapsuleGeometry = authoring.capsuleGeometry;
+                        break;
+                };
+
+                AddComponent(entity, comp);
             }
         }
     }
@@ -36,7 +61,9 @@ namespace CoreDriller.Motion
     {
         public PhysicsBodyDefinition BodyDefinition;
         public PhysicsShapeDefinition ShapeDefinition;
+        public ColliderShapeType ColliderType;
         public CircleGeometry CircleGeometry;
+        public CapsuleGeometry CapsuleGeometry;
     }
 
     public partial struct PhysicsBodyHandle : IComponentData
