@@ -1,4 +1,4 @@
-﻿using Unity.Burst;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,7 +9,7 @@ namespace CoreDriller.Motion
 {
 
     [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
-    partial struct PhysicsHandleSystem : ISystem
+    public partial struct PhysicsHandleSystem : ISystem
     {
         [BurstCompile]
         public void OnCreate(ref SystemState state)
@@ -37,6 +37,12 @@ namespace CoreDriller.Motion
                         break;
                 }
                 body.position = localTransform.ValueRO.Position.xy;
+
+                if (bodyInfo.ValueRO.BodyDefinition.type == PhysicsBody.BodyType.Dynamic && 
+                    math.lengthsq(bodyInfo.ValueRO.InitialVelocity) > 0f)
+                {
+                    body.linearVelocity = bodyInfo.ValueRO.InitialVelocity;
+                }
 
                 ecb.AddComponent(entity, new PhysicsBodyHandle() { Body = body });
                 ecb.RemoveComponent<PhysicsBodyInformation>(entity);

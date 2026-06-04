@@ -1,11 +1,11 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Entities;
 using CoreDriller.Player.StatSystem;
 using Unity.Transforms;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 
-namespace CoreDriller.Player
+namespace CoreDriller.Player.DrillSystem
 {
     public class PlayerDrillVisualEffects : MonoBehaviour
     {

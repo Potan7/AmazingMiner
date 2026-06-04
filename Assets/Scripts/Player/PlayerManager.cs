@@ -81,12 +81,8 @@ public class PlayerManager : MonoBehaviour
         // 인벤토리 버퍼 추가
         entityManager.AddBuffer<InventoryBuffer>(statEntity);
 
-        // 테스트용: 인벤토리에 초기 임의의 고급 광물들을 강제로 채워 넣어, 첫 연료 고갈 귀환 테스트 시 유실 정렬 패널티가 제대로 일어나는지 체감할 수 있게 돕습니다!
+        // 테스트용: 초기 인벤토리가 빈 채로 획득 테스트가 가능하도록 구성
         var invBuffer = entityManager.GetBuffer<InventoryBuffer>(statEntity);
-        invBuffer.Add(new InventoryBuffer { ItemType = CoreDriller.Map.BlockTypes.Coal, Count = 10 });
-        invBuffer.Add(new InventoryBuffer { ItemType = CoreDriller.Map.BlockTypes.Gold, Count = 5 });
-        invBuffer.Add(new InventoryBuffer { ItemType = CoreDriller.Map.BlockTypes.Iron, Count = 15 });
-        invBuffer.Add(new InventoryBuffer { ItemType = CoreDriller.Map.BlockTypes.Abyssite, Count = 2 }); // T5 심연석
     }
 
     void OnEnable()

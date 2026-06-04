@@ -1,4 +1,4 @@
-﻿using Unity.Entities;
+using Unity.Entities;
 using UnityEngine;
 
 namespace CoreDriller.Map
@@ -13,8 +13,12 @@ namespace CoreDriller.Map
         public Material damageDecalMaterial;
 
         [Header("Prefabs")]
-        [Tooltip("균열 이펙트 데칼 엔티티 프리팹 (RenderMesh 포함)")]
-        public GameObject damageDecalPrefab;
+        [Tooltip("스프라이트 엔티티 프리팹 (RenderMesh 포함)")]
+        [UnityEngine.Serialization.FormerlySerializedAs("damageDecalPrefab")]
+        public GameObject spritePrefab;
+
+        [Tooltip("파편 엔티티 프리팹 (지형 머티리얼 적용됨)")]
+        public GameObject debrisPrefab;
 
         class MapConfigAuthoringBaker : Baker<MapConfigAuthoring>
         {
@@ -25,7 +29,8 @@ namespace CoreDriller.Map
                 // 1. Unmanaged Component (Burst 컴파일 가능 - 프리팹 엔티티 저장)
                 AddComponent(entity, new MapConfigData
                 {
-                    DamageDecalPrefab = GetEntity(authoring.damageDecalPrefab, TransformUsageFlags.Dynamic)
+                    SpritePrefab = GetEntity(authoring.spritePrefab, TransformUsageFlags.Dynamic),
+                    DebrisPrefab = GetEntity(authoring.debrisPrefab, TransformUsageFlags.Dynamic)
                 });
 
                 // 2. Managed Component (렌더링 스레드 전용 - 머티리얼 저장)
@@ -41,7 +46,8 @@ namespace CoreDriller.Map
     // Unmanaged Component (Burst-compatible)
     public struct MapConfigData : IComponentData
     {
-        public Entity DamageDecalPrefab;
+        public Entity SpritePrefab;
+        public Entity DebrisPrefab;
     }
 
     // Managed Component (For Materials)

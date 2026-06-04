@@ -1,8 +1,9 @@
-﻿using Unity.Collections;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using CoreDriller.Map.Rendering;
 using Unity.Burst;
+using UnityEngine.LowLevelPhysics2D;
 
 namespace CoreDriller.Map.Dig
 {
@@ -48,7 +49,9 @@ namespace CoreDriller.Map.Dig
                 ChunkSize = ChunkSize,
                 BlockSize = BlockSize,
                 ECB = ecb.AsParallelWriter(),
-                DecalPrefab = config.DamageDecalPrefab
+                SpritePrefab = config.SpritePrefab,
+                DebrisPrefab = config.DebrisPrefab,
+                ElapsedTime = SystemAPI.Time.ElapsedTime
             };
 
             state.Dependency = modJob.ScheduleParallel(state.Dependency);
@@ -71,7 +74,9 @@ namespace CoreDriller.Map.Dig
         public int ChunkSize;
         public float BlockSize;
         public EntityCommandBuffer.ParallelWriter ECB;
-        public Entity DecalPrefab;
+        public Entity SpritePrefab;
+        public Entity DebrisPrefab;
+        public double ElapsedTime;
 
         public void Execute(Entity entity, [ChunkIndexInQuery] int chunkIndex, in ChunkComponent chunk, ref DynamicBuffer<BlockBuffer> blocks)
         {
@@ -121,12 +126,12 @@ namespace CoreDriller.Map.Dig
                         blockData.CurrentHP -= damage;
 
                         // 데미지를 입었으나 완전히 깨지지는 않았고 아직 데칼이 안 붙은 경우 데칼 스폰
-                        if (blockData.CurrentHP < blockData.MaxHP && blockData.CurrentHP > 0f && !blockData.HasDecal && DecalPrefab != Entity.Null)
+                        if (blockData.CurrentHP < blockData.MaxHP && blockData.CurrentHP > 0f && !blockData.HasDecal && SpritePrefab != Entity.Null)
                         {
                             blockData.HasDecal = true;
 
                             // 데칼 엔티티 생성
-                            var decal = ECB.Instantiate(chunkIndex, DecalPrefab);
+                            var decal = ECB.Instantiate(chunkIndex, SpritePrefab);
 
                             // 블록 월드 포지션 계산 (Z좌표는 블록보다 약간 앞인 -0.01f로 오버레이)
                             float3 decalPos = new float3(blockWorldX, blockWorldY, -0.01f);
@@ -148,9 +153,79 @@ namespace CoreDriller.Map.Dig
 
                         if (blockData.CurrentHP <= 0f)
                         {
+                            int originalType = blockData.BlockType;
                             blockData.BlockType = 0;
                             blockData.HasDecal = false; // 데칼이 없는 상태로 해제 (소멸 처리는 DamageDecalSystem에서 진행)
                             chunkModified = true; // 블록이 완전히 파괴되었을 때만 렌더링/물리 리빌드 트리거
+
+                            // 흙(Dirt=1)이나 자원 광석들(Coal=3, Iron=4, Copper=5, Gold=6, Abyssite=7)에 대해서만 물리 파편을 드랍합니다. (Bedrock=2는 드랍 없음)
+                            if (originalType != BlockTypes.Empty && originalType != BlockTypes.Bedrock && DebrisPrefab != Entity.Null)
+                            {
+                                // 1. 스프라이트 메쉬 엔티티 프리팹 인스턴스화
+                                var debris = ECB.Instantiate(chunkIndex, DebrisPrefab);
+
+                                // 2. 위치 및 크기 설정 (플레이어에게 잘 보이도록 Z축을 블록 앞인 -0.05f로 오버레이)
+                                float3 debrisPos = new float3(blockWorldX, blockWorldY, -0.05f);
+                                ECB.SetComponent(chunkIndex, debris, Unity.Transforms.LocalTransform.FromPositionRotationScale(debrisPos, quaternion.identity, BlockSize * 0.4f));
+
+                                // 3. UVRect 연산 (추후 지형과 다른 별도의 아틀라스 스프라이트를 사용할 경우, 아래의 atlasSize 및 uvStep 계산 로직만 수정하시면 됩니다)
+                                const float atlasSize = 4.0f; // 현재는 지형 grid.png의 4x4 아틀라스 격자를 사용
+                                const float uvStep = 1.0f / atlasSize; // 0.25f
+                                int uvIdx = originalType; 
+                                int xIdx = uvIdx % (int)atlasSize;
+                                int yIdx = uvIdx / (int)atlasSize;
+                                float offsetX = xIdx * uvStep;
+                                float offsetY = 1.0f - ((yIdx + 1) * uvStep);
+                                ECB.AddComponent(chunkIndex, debris, new UVRect { Value = new float4(uvStep, uvStep, offsetX, offsetY) });
+
+                                // 4. 파편 컴포넌트 데이터 등록
+                                ECB.AddComponent<DebrisTag>(chunkIndex, debris);
+                                ECB.AddComponent(chunkIndex, debris, new DebrisComponent
+                                {
+                                    ItemType = originalType,
+                                    SpawnTime = (float)ElapsedTime,
+                                    Lifetime = 30f // 30초 후 미획득 시 자동 소멸
+                                });
+
+                                // 5. 물리 컴포넌트 정보 등록 (동적 바디로 위쪽 사방으로 튀게 처리)
+                                PhysicsBodyDefinition bodyDef = PhysicsBodyDefinition.defaultDefinition;
+                                bodyDef.type = PhysicsBody.BodyType.Dynamic;
+                                bodyDef.gravityScale = 1.0f; // 중력 가속도
+
+                                // 시드 기반 난수를 통해 위쪽 퍼짐 속도 생성 (e와 블록 위치 해싱)
+                                uint seed = (uint)(blockWorldX * 1000f + blockWorldY * 100000f + e * 100f + 1);
+                                Unity.Mathematics.Random rand = new Unity.Mathematics.Random(seed);
+                                float vx = rand.NextFloat(-1.5f, 1.5f);
+                                float vy = rand.NextFloat(2.5f, 5.0f); // 주로 위로 튕김
+
+                                PhysicsShapeDefinition shapeDef = PhysicsShapeDefinition.defaultDefinition;
+
+                                // 파편 충돌 필터(Collision Filter) 설정:
+                                // 카테고리 16(4번째 비트)과 충돌 마스크 17(0번째 비트=지형, 4번째 비트=파편) 설정
+                                // 플레이어(카테고리 8, 3번째 비트) 및 드릴 레이와의 충돌을 차단하여 획득을 자연스럽게 만듭니다.
+                                var debrisCategory = new PhysicsMask();
+                                debrisCategory.SetBit(4);
+
+                                var debrisContacts = new PhysicsMask();
+                                debrisContacts.SetBit(0); // 지형과 충돌 가능
+                                debrisContacts.SetBit(4); // 파편끼리 충돌 가능
+
+                                shapeDef.contactFilter = new PhysicsShape.ContactFilter
+                                {
+                                    categories = debrisCategory,
+                                    contacts = debrisContacts,
+                                    groupIndex = 0
+                                };
+
+                                ECB.AddComponent(chunkIndex, debris, new CoreDriller.Motion.PhysicsBodyInformation
+                                {
+                                    BodyDefinition = bodyDef,
+                                    ShapeDefinition = shapeDef,
+                                    ColliderType = CoreDriller.Motion.ColliderShapeType.Circle,
+                                    CircleGeometry = CircleGeometry.Create(0.12f), // 작은 원형 충돌체 정의 (0.12f 크기)
+                                    InitialVelocity = new float2(vx, vy)
+                                });
+                            }
                         }
 
                         blocks[i] = new BlockBuffer { Value = blockData };

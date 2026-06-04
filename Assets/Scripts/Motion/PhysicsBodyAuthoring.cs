@@ -1,6 +1,7 @@
-﻿using Unity.Entities;
+using Unity.Entities;
 using UnityEngine;
 using UnityEngine.LowLevelPhysics2D;
+using Unity.Mathematics;
 
 namespace CoreDriller.Motion
 {
@@ -40,7 +41,8 @@ namespace CoreDriller.Motion
                 {
                     BodyDefinition = authoring.bodyDefinition,
                     ShapeDefinition = authoring.shapeDefinition,
-                    ColliderType = authoring.ColliderType
+                    ColliderType = authoring.ColliderType,
+                    InitialVelocity = float2.zero
                 };
                 switch (authoring.ColliderType)
                 {
@@ -64,6 +66,7 @@ namespace CoreDriller.Motion
         public ColliderShapeType ColliderType;
         public CircleGeometry CircleGeometry;
         public CapsuleGeometry CapsuleGeometry;
+        public float2 InitialVelocity;
     }
 
     public partial struct PhysicsBodyHandle : IComponentData

@@ -7,7 +7,6 @@ public class PhyscisTest : MonoBehaviour
     public PhysicsShapeDefinition shapeDefinition = PhysicsShapeDefinition.defaultDefinition;
     public CapsuleGeometry capsuleGeometry;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Update()
     {
         PhysicsWorld world = PhysicsWorld.defaultWorld;
@@ -15,6 +14,4 @@ public class PhyscisTest : MonoBehaviour
         myObject.CreateShape(capsuleGeometry, shapeDefinition);
         myObject.position += new Vector2(1, 1);
     }
-
-
 }

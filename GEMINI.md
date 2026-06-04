@@ -28,6 +28,8 @@
 3. **메모리 관리:** `OnUpdate`나 Job 내부에서 Managed 객체(`new class()`) 할당을 금지합니다. `NativeArray`, `DynamicBuffer`를 사용하고 적절한 시점에 `Dispose`합니다.
 4. **구조체 중심:** 컴포넌트는 `struct` 및 `IComponentData`로 작성합니다. Managed 컴포넌트는 필요한 경우에만 제한적으로 허용합니다.
 5. **Low-Level 접근:** 성능이 임계치에 도달할 경우 `BatchRendererGroup`이나 `LowLevelPhysics2D`와 같은 저수준 API를 적극 활용합니다.
+6. **버전 업데이트와 최신 API 유지:** 본 프로젝트는 지속적으로 Unity 엔진 및 Entities 패키지 버전을 최신으로 업데이트합니다. 따라서 `RenderMesh`와 같이 향후 삭제될(Obsolete) 레거시 API의 사용을 지양하고, `RenderMeshArray`나 `RenderMeshUnmanaged` 등 최신 DOTS/Entities 표준 스택으로 대체하여 구현해야 합니다.
+
 
 ## 4. 개발 및 빌드 컨벤션 (Conventions)
 
