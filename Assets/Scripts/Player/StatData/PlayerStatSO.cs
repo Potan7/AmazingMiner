@@ -1,4 +1,4 @@
-
+﻿
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "PlayerStatSO", menuName = "ScriptableObjects/PlayerStatSO", order = 0)]
@@ -43,8 +43,11 @@ public class PlayerStatSO : ScriptableObject
     public float JetpackFuelConsumption = 1f;
 
     [Header("Logistics & Penalty")]
-    [Tooltip("가방 최대 용량 (한 번에 끌어올릴 수 있는 원석 수량)")]
-    public int InventorySize = 5;
+    [Tooltip("가방의 각 칸에 들어가는 아이템의 최대 개수")]
+    public int InventorySlotSize = 5;
+
+    [Tooltip("가방의 슬롯 수 (한 번에 끌어올릴 수 있는 원석 수량)")]
+    public int InventorySlotCount = 5;
 
     [Tooltip("떨어진 광물/아이템을 빨아들이는 반경")]
     public float ItemPickupRange = 2f;

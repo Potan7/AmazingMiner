@@ -34,7 +34,7 @@
 ## 4. 개발 및 빌드 컨벤션 (Conventions)
 
 - **어셈블리 정의 (Asmdef):** `CoreDriller.Core`, `CoreDriller.Map`, `CoreDriller.Player` 등 기능별로 분리된 어셈블리를 사용하여 컴파일 속도와 의존성을 관리합니다.
-- **검증 프로토콜:** 모든 버그 수정 시 반드시 재현 테스트를 선행하며, 구현 후에는 ECS 데이터 무결성 및 메모리 누수 여부를 체크합니다.
+- **검증 프로토콜:** 모든 버그 수정 시, 다시 코드를 리뷰하며 구현 후에는 ECS 데이터 무결성 및 메모리 누수 여부를 체크합니다.
 - **주석 및 문서화:** 코드 변경 이유와 핵심 로직에 대한 간결한 주석을 포함합니다.
 
 ## 5. 현재 프로젝트 상태 (Current State)
@@ -49,18 +49,6 @@
 * **상태 확인:** `unity-cli status` 명령어를 통해 에디터 연결 상태가 `ready`인지 확인합니다.
 * **코드 컴파일 검증:** C# 코드 수정 후 반드시 `unity-cli editor refresh --compile`을 실행하여 빌드 오류가 없는지 검증합니다.
 * **로그 확인:** 컴파일 에러 발생 시 `unity-cli console --type error --lines 10` 명령으로 신속히 콘솔 컴파일 에러를 수집하고 자가 진단합니다.
-
-### 6.2. 주요 제어 명령어 목록
-* **플레이 모드 제어:**
-  * 진입: `unity-cli editor play --wait` (플레이 모드로 완전히 진입할 때까지 블로킹)
-  * 종료: `unity-cli editor stop`
-  * 일시 정지 토글: `unity-cli editor pause`
-* **동적 C# 스크립트 실행 (디버깅):**
-  * `unity-cli exec "UnityEngine.Time.time"`
-  * `unity-cli exec "UnityEngine.GameObject.Find(\"Player\").transform.position"`
-* **콘솔 관리:**
-  * 최근 로그 출력: `unity-cli console --lines 30`
-  * 콘솔 지우기: `unity-cli console --clear`
 
 ---
 **주의:** 본 파일은 프로젝트의 헌법과 같으므로, 모든 제안과 코드는 위 가이드라인을 엄격히 준수해야 합니다.

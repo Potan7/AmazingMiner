@@ -1,4 +1,4 @@
-
+﻿
 using Unity.Entities;
 using UnityEngine;
 
@@ -40,11 +40,12 @@ namespace CoreDriller.Player.StatSystem
 
     public struct PlayerInventoryData : IComponentData
     {
-        public int InventorySize;    // 인벤토리 크기 (설정값)
+        public int InventorySlotSize;    // 인벤토리 각 칸에 들어갈 수 있는 아이템 최대치
+        public int InventorySlotCount; // 슬롯 수
         public float ItemPickupRange; // 아이템 픽업 범위 (설정값)
     }
 
-    [InternalBufferCapacity(8)]
+    [InternalBufferCapacity(32)]
     public struct InventoryBuffer : IBufferElementData
     {
         public int ItemType;

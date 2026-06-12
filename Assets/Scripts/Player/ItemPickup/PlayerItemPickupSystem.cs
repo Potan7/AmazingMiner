@@ -43,9 +43,19 @@ namespace CoreDriller.Player.ItemPickup
             var inventoryData = SystemAPI.GetComponent<PlayerInventoryData>(statEntity);
             var inventory = SystemAPI.GetBuffer<InventoryBuffer>(statEntity);
 
+            // 업그레이드 등으로 슬롯 카운트가 커졌을 때 버퍼 자동 확장
+            if (inventory.Length < inventoryData.InventorySlotCount)
+            {
+                while (inventory.Length < inventoryData.InventorySlotCount)
+                {
+                    inventory.Add(new InventoryBuffer { ItemType = 0, Count = 0 });
+                }
+            }
+
             float3 playerPos = playerTransform.Position;
             float pickupRange = inventoryData.ItemPickupRange;
-            int inventorySize = inventoryData.InventorySize;
+            int inventorySize = inventoryData.InventorySlotCount;
+            int slotSize = inventoryData.InventorySlotSize;
             float dt = SystemAPI.Time.DeltaTime;
             double elapsedTime = SystemAPI.Time.ElapsedTime;
 
@@ -73,7 +83,7 @@ namespace CoreDriller.Player.ItemPickup
                 }
 
                 // B. 인벤토리가 가득 찼는지 여부 판단 (자석 비활성화용)
-                bool hasSpace = HasInventorySpace(ref inventory, inventorySize, itemType);
+                bool hasSpace = HasInventorySpace(ref inventory, inventorySize, slotSize, itemType);
 
                 // C. 자석 인력 작용 조건: 픽업 범위 내에 있고, 가방에 빈 자리가 존재할 때
                 if (dist <= pickupRange && hasSpace)
@@ -87,7 +97,7 @@ namespace CoreDriller.Player.ItemPickup
                 if (dist <= 0.4f && (elapsedTime - debrisComp.ValueRO.SpawnTime >= 0.15f) && hasSpace)
                 {
                     // 1. 인벤토리 버퍼에 누적 반영
-                    AddToInventory(ref inventory, itemType);
+                    AddToInventory(ref inventory, itemType, slotSize);
  
                     // 2. 물리 바디 파괴 (메모리 누수 원천 제거)
                     body.Destroy();
@@ -103,27 +113,35 @@ namespace CoreDriller.Player.ItemPickup
 
         // 특정 아이템 타입이 인벤토리에 들어갈 슬롯 공간이 있는지 체크하는 헬퍼 함수
         [BurstCompile]
-        private static bool HasInventorySpace(ref DynamicBuffer<InventoryBuffer> inventory, int inventorySize, int itemType)
+        private static bool HasInventorySpace(ref DynamicBuffer<InventoryBuffer> inventory, int inventorySize, int slotSize, int itemType)
         {
-            // 1. 기존 가방 슬롯에 동일한 아이템이 이미 존재하면 합쳐지므로 공간 여유와 상관없이 수집 가능
+            // 1. 기존 슬롯 중 동일 아이템이고 공간 여유가 있는 슬롯이 있으면 획득 가능
             for (int i = 0; i < inventory.Length; i++)
             {
-                if (inventory[i].ItemType == itemType)
+                if (inventory[i].ItemType == itemType && inventory[i].Count < slotSize)
                 {
                     return true;
                 }
             }
-            // 2. 새로운 광물 종류라면 현재 가방 크기가 최대 제한 슬롯 개수 미만이어야 획득 가능
-            return inventory.Length < inventorySize;
+            // 2. 여유 슬롯이 없다면, 빈 슬롯(ItemType == 0)이 존재해야 획득 가능
+            for (int i = 0; i < inventory.Length; i++)
+            {
+                if (inventory[i].ItemType == 0)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         // 인벤토리 버퍼에 아이템을 집어넣는 헬퍼 함수
         [BurstCompile]
-        private static void AddToInventory(ref DynamicBuffer<InventoryBuffer> inventory, int itemType)
+        private static void AddToInventory(ref DynamicBuffer<InventoryBuffer> inventory, int itemType, int slotSize)
         {
+            // 1. 기존 슬롯 중 동일 아이템이고 공간 여유가 있는 슬롯에 추가
             for (int i = 0; i < inventory.Length; i++)
             {
-                if (inventory[i].ItemType == itemType)
+                if (inventory[i].ItemType == itemType && inventory[i].Count < slotSize)
                 {
                     var elem = inventory[i];
                     elem.Count += 1;
@@ -131,8 +149,18 @@ namespace CoreDriller.Player.ItemPickup
                     return;
                 }
             }
-            // 기존 가방에 동일 품목이 없는 경우 신규 등록
-            inventory.Add(new InventoryBuffer { ItemType = itemType, Count = 1 });
+            // 2. 비어 있는 첫 번째 슬롯(ItemType == 0)에 등록
+            for (int i = 0; i < inventory.Length; i++)
+            {
+                if (inventory[i].ItemType == 0)
+                {
+                    var elem = inventory[i];
+                    elem.ItemType = itemType;
+                    elem.Count = 1;
+                    inventory[i] = elem;
+                    return;
+                }
+            }
         }
     }
 }

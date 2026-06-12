@@ -38,6 +38,13 @@ namespace CoreDriller.General
             if (mouse == null) return;
 
             bool isPressed = mouse.leftButton.isPressed;
+            
+            // 마우스가 UI 위에 있을 때는 게임 월드 클릭(채굴) 판정을 무시합니다.
+            if (isPressed && UnityEngine.EventSystems.EventSystem.current != null && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+            {
+                isPressed = false;
+            }
+
             float2 worldPos = float2.zero;
 
             if (isPressed)

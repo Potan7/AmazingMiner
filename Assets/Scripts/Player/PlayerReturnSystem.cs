@@ -123,7 +123,15 @@ namespace CoreDriller.Player
 
                             // 실제 버퍼 갱신
                             var originElement = inventory[target.BufferIndex];
-                            originElement.Count = remainingCount;
+                            if (remainingCount <= 0)
+                            {
+                                originElement.ItemType = 0;
+                                originElement.Count = 0;
+                            }
+                            else
+                            {
+                                originElement.Count = remainingCount;
+                            }
                             inventory[target.BufferIndex] = originElement;
 
                             Debug.LogWarning($"[ForcedReturn Penalty] 가장 가치 있는 광물 유실! 종류: {GetItemName(target.ItemType)}, 기존: {target.Count}개 -> {lostCount}개 유실 -> 남은 수량: {remainingCount}개");

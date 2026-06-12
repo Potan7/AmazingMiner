@@ -1,4 +1,4 @@
-
+﻿
 using UnityEngine;
 
 [System.Serializable]
@@ -24,7 +24,8 @@ public class PlayerStat
     public float JetpackFuelConsumption;
 
     [Header("Logistics & Penalty")]
-    public int InventorySize;
+    public int InventorySlotSize; // 각 슬롯에 들어갈 수 있는 아이템 최대치
+    public int InventorySlotCount;  // 슬롯의 총 개수
     public float ItemPickupRange;
     public float PenaltyReductionRate;
 
@@ -41,7 +42,8 @@ public class PlayerStat
         DrillExplosionRadius = statSO.DrillExplosionRadius;
         JetpackThrust = statSO.JetpackThrust;
         JetpackFuelConsumption = statSO.JetpackFuelConsumption;
-        InventorySize = statSO.InventorySize;
+        InventorySlotSize = statSO.InventorySlotSize;
+        InventorySlotCount = statSO.InventorySlotCount;
         ItemPickupRange = statSO.ItemPickupRange;
         PenaltyReductionRate = statSO.PenaltyReductionRate;
     }
