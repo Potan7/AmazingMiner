@@ -1,4 +1,5 @@
-﻿using CoreDriller.Player.StatSystem;
+﻿using CoreDriller;
+using CoreDriller.Player.StatSystem;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,7 +27,11 @@ public class ItemSlot : MonoBehaviour
             return;
         }   
 
-        // TODO: 아이템 타입에 따른 이미지 설정
+        Sprite itemSprite = DataManager.Instance.GetItemVisualData(item.ItemType)?.Icon;
+        if (itemSprite != null)
+        {
+            itemImage.sprite = itemSprite;
+        }
         itemCount.SetText("{0}", item.Count);
 
         itemImage.gameObject.SetActive(true);

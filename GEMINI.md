@@ -33,7 +33,10 @@
 
 ## 4. 개발 및 빌드 컨벤션 (Conventions)
 
-- **어셈블리 정의 (Asmdef):** `CoreDriller.Core`, `CoreDriller.Map`, `CoreDriller.Player` 등 기능별로 분리된 어셈블리를 사용하여 컴파일 속도와 의존성을 관리합니다.
+- **블록 및 아이템 ID 명명 규칙 (ID Naming Conventions)**:
+  - `1 ~ 1000`: 기본 지형 블록 (Bedrock, Dirt, Stone 등)
+  - `1001 ~ 2000`: 광석 (Coal, Iron, Copper, Gold 등)
+  - `2001 ~`: 공장 생산 아이템 및 기계 부품
 - **검증 프로토콜:** 모든 버그 수정 시, 다시 코드를 리뷰하며 구현 후에는 ECS 데이터 무결성 및 메모리 누수 여부를 체크합니다.
 - **주석 및 문서화:** 코드 변경 이유와 핵심 로직에 대한 간결한 주석을 포함합니다.
 

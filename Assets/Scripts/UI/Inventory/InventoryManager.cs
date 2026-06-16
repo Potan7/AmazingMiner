@@ -20,6 +20,8 @@ public class InventoryManager : MonoBehaviour
     private void OnDestroy()
     {
         PlayerUIEvents.OnInventoryChanged -= OnInventoryChanged;
+
+        if (PlayerManager.Instance == null) return;
         PlayerManager.Instance.OnInventoryKeyPerformed -= OnInventoryKeyPerformed;
     }
 

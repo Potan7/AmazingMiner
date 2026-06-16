@@ -1,4 +1,4 @@
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -157,25 +157,30 @@ namespace CoreDriller.Player
             ecb.Dispose();
         }
 
-        private static int GetItemValue(int itemType)
+        private int GetItemValue(int itemType)
         {
-            return itemType switch
+            if (!SystemAPI.TryGetSingleton<ItemDatabaseReference>(out var itemBlobEntity))
             {
-                Map.BlockTypes.Abyssite => 100, // T5
-                Map.BlockTypes.Gold => 80,      // T4
-                Map.BlockTypes.Iron => 50,      // T3
-                Map.BlockTypes.Copper => 45,    // T3
-                Map.BlockTypes.Coal => 20,      // T2
-                Map.BlockTypes.Dirt => 5,       // T1
-                _ => 0
-            };
+                return 0; // 아직 Addressables 로딩이 끝나지 않았다면 임시로 0 가치 반환
+            }
+            ref var itemBlob = ref itemBlobEntity.Reference.Value;
+
+            for (int i = 0; i < itemBlob.Items.Length; i++)
+            {
+                var item = itemBlob.Items[i];
+                if (item.ItemID == itemType)
+                {
+                    return item.Value;
+                }
+            }
+            return 0;
         }
 
         private static string GetItemName(int itemType)
         {
             return itemType switch
             {
-                Map.BlockTypes.Abyssite => "Abyssite (T5 심연석)",
+                Map.BlockTypes.Stone => "Abyssite (T5 심연석)",
                 Map.BlockTypes.Gold => "Gold (T4 금광석)",
                 Map.BlockTypes.Iron => "Iron (T3 철광석)",
                 Map.BlockTypes.Copper => "Copper (T3 구리광석)",

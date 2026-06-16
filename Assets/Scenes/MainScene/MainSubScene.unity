@@ -150,6 +150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CoreDriller.Map::CoreDriller.Map.MapConfigAuthoring
   terrainMaterial: {fileID: 2100000, guid: da2b53a9350c5aa4aa8c0fbe8f0f95f8, type: 2}
   damageDecalMaterial: {fileID: 2100000, guid: 9c0fc20e345c7794384fdbe0f9c1a4b8, type: 2}
+  spriteMaterial: {fileID: 2100000, guid: 9c0fc20e345c7794384fdbe0f9c1a4b8, type: 2}
   spritePrefab: {fileID: 6928359829930974246, guid: e3c7ce7b69ba1f6498394feb35bdc256, type: 3}
   debrisPrefab: {fileID: 6928359829930974246, guid: 4963fa3463c8c7d4e99a955901462931, type: 3}
 --- !u!4 &450550497

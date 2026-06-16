@@ -33,6 +33,8 @@ namespace CoreDriller.Map.Dig
             }
 
             var config = SystemAPI.GetSingleton<MapConfigData>();
+            var configEntity = SystemAPI.GetSingletonEntity<MapConfigData>();
+            var debrisPrefabBuffer = SystemAPI.GetBuffer<ItemDebrisPrefabElement>(configEntity);
             var bufferEntity = SystemAPI.GetSingletonEntity<DigEvent>();
             var digBuffer = SystemAPI.GetBuffer<DigEvent>(bufferEntity);
 
@@ -51,6 +53,7 @@ namespace CoreDriller.Map.Dig
                 ECB = ecb.AsParallelWriter(),
                 SpritePrefab = config.SpritePrefab,
                 DebrisPrefab = config.DebrisPrefab,
+                DebrisMappings = debrisPrefabBuffer.AsNativeArray(),
                 ElapsedTime = SystemAPI.Time.ElapsedTime
             };
 
@@ -76,6 +79,7 @@ namespace CoreDriller.Map.Dig
         public EntityCommandBuffer.ParallelWriter ECB;
         public Entity SpritePrefab;
         public Entity DebrisPrefab;
+        [ReadOnly] public NativeArray<ItemDebrisPrefabElement> DebrisMappings;
         public double ElapsedTime;
 
         public void Execute(Entity entity, [ChunkIndexInQuery] int chunkIndex, in ChunkComponent chunk, ref DynamicBuffer<BlockBuffer> blocks)
@@ -159,24 +163,41 @@ namespace CoreDriller.Map.Dig
                             chunkModified = true; // 블록이 완전히 파괴되었을 때만 렌더링/물리 리빌드 트리거
 
                             // 흙(Dirt=1)이나 자원 광석들(Coal=3, Iron=4, Copper=5, Gold=6, Abyssite=7)에 대해서만 물리 파편을 드랍합니다. (Bedrock=2는 드랍 없음)
-                            if (originalType != BlockTypes.Empty && originalType != BlockTypes.Bedrock && DebrisPrefab != Entity.Null)
+                            Entity spawnPrefab = DebrisPrefab;
+                            bool isCustomPrefab = false;
+                            for (int m = 0; m < DebrisMappings.Length; m++)
+                            {
+                                if (DebrisMappings[m].ItemID == originalType)
+                                {
+                                    spawnPrefab = DebrisMappings[m].DebrisPrefab;
+                                    isCustomPrefab = true;
+                                    break;
+                                }
+                            }
+
+                            if (originalType != BlockTypes.Empty && originalType != BlockTypes.Bedrock && spawnPrefab != Entity.Null)
                             {
                                 // 1. 스프라이트 메쉬 엔티티 프리팹 인스턴스화
-                                var debris = ECB.Instantiate(chunkIndex, DebrisPrefab);
+                                var debris = ECB.Instantiate(chunkIndex, spawnPrefab);
 
                                 // 2. 위치 및 크기 설정 (플레이어에게 잘 보이도록 Z축을 블록 앞인 -0.05f로 오버레이)
                                 float3 debrisPos = new float3(blockWorldX, blockWorldY, -0.05f);
                                 ECB.SetComponent(chunkIndex, debris, Unity.Transforms.LocalTransform.FromPositionRotationScale(debrisPos, quaternion.identity, BlockSize * 0.4f));
 
-                                // 3. UVRect 연산 (추후 지형과 다른 별도의 아틀라스 스프라이트를 사용할 경우, 아래의 atlasSize 및 uvStep 계산 로직만 수정하시면 됩니다)
-                                const float atlasSize = 4.0f; // 현재는 지형 grid.png의 4x4 아틀라스 격자를 사용
-                                const float uvStep = 1.0f / atlasSize; // 0.25f
-                                int uvIdx = originalType; 
-                                int xIdx = uvIdx % (int)atlasSize;
-                                int yIdx = uvIdx / (int)atlasSize;
-                                float offsetX = xIdx * uvStep;
-                                float offsetY = 1.0f - ((yIdx + 1) * uvStep);
-                                ECB.AddComponent(chunkIndex, debris, new UVRect { Value = new float4(uvStep, uvStep, offsetX, offsetY) });
+                                // 3. UVRect 연산 (공용 아틀라스 크롭 fallback일 때만 기존 컷아웃 설정 적용)
+                                // 전용 프리팹(isCustomPrefab == true)인 경우에는 DebrisMaterialInitializeSystem에서
+                                // 스프라이트 패킹 상태를 정밀 연산하여 프리팹에 미리 심어둔 UVRect를 고스란히 유지합니다.
+                                if (!isCustomPrefab)
+                                {
+                                    const float atlasSize = 4.0f; // 현재는 지형 grid.png의 4x4 아틀라스 격자를 사용
+                                    const float uvStep = 1.0f / atlasSize; // 0.25f
+                                    int uvIdx = originalType; 
+                                    int xIdx = uvIdx % (int)atlasSize;
+                                    int yIdx = uvIdx / (int)atlasSize;
+                                    float offsetX = xIdx * uvStep;
+                                    float offsetY = 1.0f - ((yIdx + 1) * uvStep);
+                                    ECB.AddComponent(chunkIndex, debris, new UVRect { Value = new float4(uvStep, uvStep, offsetX, offsetY) });
+                                }
 
                                 // 4. 파편 컴포넌트 데이터 등록
                                 ECB.AddComponent<DebrisTag>(chunkIndex, debris);

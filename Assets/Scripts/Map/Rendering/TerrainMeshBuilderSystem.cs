@@ -13,16 +13,20 @@ namespace CoreDriller.Map.Rendering
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<MeshNeedsUpdateTag>();
+            state.RequireForUpdate<BlockDatabaseReference>(); // 데이터베이스 대기
         }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            var dbRef = SystemAPI.GetSingleton<BlockDatabaseReference>().Reference;
+
             // 수정된 청크만 처리하는 Job을 예약합니다.
             var marchingJob = new BlockMeshJob
             {
                 ChunkSize = 16,
-                CellSize = 0.6f
+                CellSize = 0.6f,
+                BlockDB = dbRef
             };
 
             state.Dependency = marchingJob.ScheduleParallel(state.Dependency);
@@ -35,6 +39,7 @@ namespace CoreDriller.Map.Rendering
     {
         public int ChunkSize;
         public float CellSize;
+        [ReadOnly] public BlobAssetReference<BlockDatabaseBlob> BlockDB;
 
         public void Execute(in ChunkComponent chunk, in DynamicBuffer<BlockBuffer> blocks,
                              ref DynamicBuffer<ChunkVertex> vertices, ref DynamicBuffer<ChunkTriangle> triangles)
@@ -56,9 +61,8 @@ namespace CoreDriller.Map.Rendering
                     if (blockType == BlockTypes.Empty)
                         continue;
 
-                    // UV 계산 (BlockType을 아틀라스 인덱스로 직접 사용)
-                    // 0번 인덱스가 투명이므로, Dirt(1) -> 1번 인덱스, Bedrock(2) -> 2번 인덱스...
-                    int uvIdx = blockType; 
+                    // UV 계산 (블록 DB에서 AtlasIndex 조회)
+                    int uvIdx = GetAtlasIndex(blockType); 
 
                     int xIdx = uvIdx % (int)atlasSize;
                     int yIdx = uvIdx / (int)atlasSize;
@@ -108,6 +112,19 @@ namespace CoreDriller.Map.Rendering
             triangles.Add(new ChunkTriangle { Value = startIndex });
             triangles.Add(new ChunkTriangle { Value = startIndex + 2 });
             triangles.Add(new ChunkTriangle { Value = startIndex + 3 });
+        }
+
+        private int GetAtlasIndex(int blockType)
+        {
+            ref var blocks = ref BlockDB.Value.Blocks;
+            for (int i = 0; i < blocks.Length; i++)
+            {
+                if (blocks[i].BlockType == blockType)
+                {
+                    return blocks[i].AtlasIndex;
+                }
+            }
+            return 0; // Default fallback
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Unity.Burst;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -20,9 +20,9 @@ namespace CoreDriller.Player.DrillSystem
             state.RequireForUpdate<PlayerTag>(); // PlayerTag가 존재할 때만 업데이트되도록 설정
 
             var mask = PhysicsMask.All;
-            mask.ResetBit(3);
+            mask.ResetBit(3); // 플레이어(비트 3, 카테고리 8) 충돌 무시
+            mask.ResetBit(4); // 파편/아이템(비트 4, 카테고리 16) 충돌 무시
             drillQueryFilter = new PhysicsQuery.QueryFilter(PhysicsMask.One, mask);
-
         }
 
         [BurstCompile]

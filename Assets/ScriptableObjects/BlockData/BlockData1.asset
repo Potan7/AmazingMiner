@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9098c904f33d2674f9736a4b44adc2b2, type: 3}
+  m_Name: BlockData1
+  m_EditorClassIdentifier: Assembly-CSharp::BlockDataSO
+  BlockVisualDatas:
+  - BlockType: 1
+    Name: Bedrock
+    Description: 
+    Icon: {fileID: 0}
+    AtlasIndex: 2
+    DropItemID: 0
+  - BlockType: 2
+    Name: Dirt
+    Description: 
+    Icon: {fileID: 0}
+    AtlasIndex: 1
+    DropItemID: 0
+  - BlockType: 3
+    Name: Stone
+    Description: 
+    Icon: {fileID: 0}
+    AtlasIndex: 3
+    DropItemID: 0
+  - BlockType: 1001
+    Name: Coal
+    Description: 
+    Icon: {fileID: 0}
+    AtlasIndex: 2
+    DropItemID: 0
+  - BlockType: 1002
+    Name: Iron
+    Description: 
+    Icon: {fileID: 0}
+    AtlasIndex: 4
+    DropItemID: 0
+  - BlockType: 1003
+    Name: Copper
+    Description: 
+    Icon: {fileID: 0}
+    AtlasIndex: 5
+    DropItemID: 0
+  - BlockType: 1004
+    Name: Gold
+    Description: 
+    Icon: {fileID: 0}
+    AtlasIndex: 6
+    DropItemID: 0
+  BlockSpecs:
+  - BlockType: 1
+    Hardness: 999999
+    MiningTime: 1
+    MaxHP: 1
+    DropItemID: 0
+  - BlockType: 2
+    Hardness: 1
+    MiningTime: 1
+    MaxHP: 1
+    DropItemID: 0
+  - BlockType: 3
+    Hardness: 1
+    MiningTime: 1
+    MaxHP: 1
+    DropItemID: 0
+  - BlockType: 1001
+    Hardness: 1
+    MiningTime: 1
+    MaxHP: 1
+    DropItemID: 0
+  - BlockType: 1002
+    Hardness: 1
+    MiningTime: 1
+    MaxHP: 1
+    DropItemID: 0
+  - BlockType: 1003
+    Hardness: 1
+    MiningTime: 1
+    MaxHP: 1
+    DropItemID: 0
+  - BlockType: 1004
+    Hardness: 1
+    MiningTime: 1
+    MaxHP: 1
+    DropItemID: 0

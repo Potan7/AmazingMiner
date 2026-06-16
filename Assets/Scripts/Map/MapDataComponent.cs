@@ -9,13 +9,37 @@ namespace CoreDriller.Map
     public static class BlockTypes
     {
         public const int Empty = 0;
-        public const int Dirt = 1;
-        public const int Bedrock = 2;
-        public const int Coal = 3;
-        public const int Iron = 4;
-        public const int Copper = 5;
-        public const int Gold = 6;
-        public const int Abyssite = 7; // T5 심연석
+        public const int Bedrock = 1; // 2 -> 1
+        public const int Dirt = 2;    // 1 -> 2
+        public const int Stone = 3;   // 7 -> 3
+        
+        public const int Coal = 1001;   // 3 -> 1001
+        public const int Iron = 1002;   // 4 -> 1002
+        public const int Copper = 1003; // 5 -> 1003
+        public const int Gold = 1004;   // 6 -> 1004
+    }
+
+    // Blob Asset에 들어갈 Unmanaged 블록 데이터 구조체
+    public struct BlockBlobInfo
+    {
+        public int BlockType;
+        public float Hardness;
+        public float MiningTime;
+        public float MaxHP;
+        public int AtlasIndex;
+        public int DropItemID;
+    }
+
+    // 전체 블록 데이터베이스 Blob 구조체
+    public struct BlockDatabaseBlob
+    {
+        public BlobArray<BlockBlobInfo> Blocks;
+    }
+
+    // 블록 데이터베이스 참조 컴포넌트
+    public struct BlockDatabaseReference : IComponentData
+    {
+        public BlobAssetReference<BlockDatabaseBlob> Reference;
     }
 
     public struct BlockData : IComponentData

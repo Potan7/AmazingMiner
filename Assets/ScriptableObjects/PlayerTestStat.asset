@@ -23,7 +23,7 @@ MonoBehaviour:
   DrillExplosionRadius: 3
   JetpackThrust: 50
   JetpackFuelConsumption: 1
-  InventorySlotSize: 50
+  InventorySlotSize: 500
   InventorySlotCount: 17
   ItemPickupRange: 3
   PenaltyReductionRate: 0.1

@@ -1,0 +1,151 @@
+{ "frames": {
+   "mineman anim (jet_fire) #drill-a 0.aseprite": {
+    "frame": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "sourceSize": { "w": 145, "h": 110 },
+    "duration": 100
+   },
+   "mineman anim (jet_fire) #drill-a 1.aseprite": {
+    "frame": { "x": 145, "y": 0, "w": 145, "h": 110 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "sourceSize": { "w": 145, "h": 110 },
+    "duration": 100
+   },
+   "mineman anim (jet_fire) #drill-a 2.aseprite": {
+    "frame": { "x": 290, "y": 0, "w": 145, "h": 110 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "sourceSize": { "w": 145, "h": 110 },
+    "duration": 100
+   },
+   "mineman anim (jet_fire) #drill-a 3.aseprite": {
+    "frame": { "x": 435, "y": 0, "w": 145, "h": 110 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "sourceSize": { "w": 145, "h": 110 },
+    "duration": 100
+   },
+   "mineman anim (jet_fire) #drill-a 4.aseprite": {
+    "frame": { "x": 580, "y": 0, "w": 145, "h": 110 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "sourceSize": { "w": 145, "h": 110 },
+    "duration": 100
+   },
+   "mineman anim (jet_fire) #drill-a 5.aseprite": {
+    "frame": { "x": 725, "y": 0, "w": 145, "h": 110 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "sourceSize": { "w": 145, "h": 110 },
+    "duration": 100
+   },
+   "mineman anim (jet_fire) #drill-a 6.aseprite": {
+    "frame": { "x": 870, "y": 0, "w": 145, "h": 110 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "sourceSize": { "w": 145, "h": 110 },
+    "duration": 100
+   },
+   "mineman anim (jet_fire) #drill-a 7.aseprite": {
+    "frame": { "x": 1015, "y": 0, "w": 145, "h": 110 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "sourceSize": { "w": 145, "h": 110 },
+    "duration": 100
+   },
+   "mineman anim (drill) #drill-a 0.aseprite": {
+    "frame": { "x": 0, "y": 110, "w": 145, "h": 110 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "sourceSize": { "w": 145, "h": 110 },
+    "duration": 100
+   },
+   "mineman anim (drill) #drill-a 1.aseprite": {
+    "frame": { "x": 145, "y": 110, "w": 145, "h": 110 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "sourceSize": { "w": 145, "h": 110 },
+    "duration": 100
+   },
+   "mineman anim (drill) #drill-a 2.aseprite": {
+    "frame": { "x": 290, "y": 110, "w": 145, "h": 110 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "sourceSize": { "w": 145, "h": 110 },
+    "duration": 100
+   },
+   "mineman anim (drill) #drill-a 3.aseprite": {
+    "frame": { "x": 435, "y": 110, "w": 145, "h": 110 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "sourceSize": { "w": 145, "h": 110 },
+    "duration": 100
+   },
+   "mineman anim (drill) #drill-a 4.aseprite": {
+    "frame": { "x": 580, "y": 110, "w": 145, "h": 110 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "sourceSize": { "w": 145, "h": 110 },
+    "duration": 100
+   },
+   "mineman anim (drill) #drill-a 5.aseprite": {
+    "frame": { "x": 725, "y": 110, "w": 145, "h": 110 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "sourceSize": { "w": 145, "h": 110 },
+    "duration": 100
+   },
+   "mineman anim (drill) #drill-a 6.aseprite": {
+    "frame": { "x": 870, "y": 110, "w": 145, "h": 110 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "sourceSize": { "w": 145, "h": 110 },
+    "duration": 100
+   },
+   "mineman anim (drill) #drill-a 7.aseprite": {
+    "frame": { "x": 1015, "y": 110, "w": 145, "h": 110 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 145, "h": 110 },
+    "sourceSize": { "w": 145, "h": 110 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.3.17.2-x64",
+  "image": "mineman_drill_anim.png",
+  "format": "RGBA8888",
+  "size": { "w": 1160, "h": 220 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "walk", "from": 1, "to": 6, "direction": "forward", "color": "#000000ff" },
+   { "name": "drill-a", "from": 8, "to": 15, "direction": "forward", "color": "#000000ff" },
+   { "name": "jet_rdy", "from": 16, "to": 18, "direction": "forward", "color": "#000000ff" },
+   { "name": "jet_fire", "from": 19, "to": 23, "direction": "forward", "color": "#000000ff" }
+  ],
+  "layers": [
+   { "name": "jet_fire", "opacity": 255, "blendMode": "normal" },
+   { "name": "drill", "opacity": 255, "blendMode": "normal" }
+  ],
+  "slices": [
+  ]
+ }
+}

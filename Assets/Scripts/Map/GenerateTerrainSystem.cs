@@ -24,23 +24,23 @@ namespace CoreDriller.Map
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
-            // GenerateStageRequest 컴포넌트가 있을때만 시스템이 활성화되도록 설정
             state.RequireForUpdate<GenerateStageRequest>();
+            state.RequireForUpdate<BlockDatabaseReference>(); // 데이터베이스 로딩 완료 시점 대기
         }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var dbRef = SystemAPI.GetSingleton<BlockDatabaseReference>().Reference;
 
             // 광물 생성 규칙 설정 (나중에는 외부 데이터에서 가져오게 됨)
             // Frequency를 낮춰 덩어리를 크게 만들고, Threshold를 높여 희귀도를 올렸습니다.
-            var mineralRules = new NativeArray<MineralRule>(5, Allocator.Temp);
-            mineralRules[0] = new MineralRule { BlockType = BlockTypes.Coal, MinDepth = 0.05f, MaxDepth = 0.5f, Frequency = 0.08f, Threshold = 0.75f, Hardness = 1.0f, MiningTime = 1.5f, MaxHP = 1.0f };
-            mineralRules[1] = new MineralRule { BlockType = BlockTypes.Iron, MinDepth = 0.15f, MaxDepth = 0.7f, Frequency = 0.07f, Threshold = 0.82f, Hardness = 2.0f, MiningTime = 2.5f, MaxHP = 1.0f };
-            mineralRules[2] = new MineralRule { BlockType = BlockTypes.Copper, MinDepth = 0.3f, MaxDepth = 0.9f, Frequency = 0.06f, Threshold = 0.85f, Hardness = 2.0f, MiningTime = 2.5f, MaxHP = 1.0f };
-            mineralRules[3] = new MineralRule { BlockType = BlockTypes.Gold, MinDepth = 0.6f, MaxDepth = 1.0f, Frequency = 0.05f, Threshold = 0.92f, Hardness = 5.0f, MiningTime = 4.0f, MaxHP = 1.0f };
-            mineralRules[4] = new MineralRule { BlockType = BlockTypes.Abyssite, MinDepth = 0.85f, MaxDepth = 1.0f, Frequency = 0.04f, Threshold = 0.95f, Hardness = 10.0f, MiningTime = 8.0f, MaxHP = 1.0f };
+            var mineralRules = new NativeArray<MineralRule>(4, Allocator.Temp);
+            mineralRules[0] = new MineralRule { BlockType = BlockTypes.Coal, MinDepth = 0.05f, MaxDepth = 0.5f, Frequency = 0.08f, Threshold = 0.75f };
+            mineralRules[1] = new MineralRule { BlockType = BlockTypes.Copper, MinDepth = 0.15f, MaxDepth = 0.7f, Frequency = 0.07f, Threshold = 0.76f }; // Copper is now shallower, threshold lowered to increase quantity
+            mineralRules[2] = new MineralRule { BlockType = BlockTypes.Iron, MinDepth = 0.3f, MaxDepth = 0.9f, Frequency = 0.06f, Threshold = 0.82f };   // Iron is now deeper
+            mineralRules[3] = new MineralRule { BlockType = BlockTypes.Gold, MinDepth = 0.6f, MaxDepth = 1.0f, Frequency = 0.05f, Threshold = 0.92f };
 
             // 1. GenerateStageRequest를 가진 엔티티를 찾습니다.
             foreach (var (request, entity) in SystemAPI.Query<RefRO<GenerateStageRequest>>().WithEntityAccess())
@@ -48,7 +48,7 @@ namespace CoreDriller.Map
                 UnityEngine.Debug.Log($"[GenerateTerrainSystem] 지형 생성 시작! 시드: {request.ValueRO.Seed}");
 
                 // 2. 로직 실행
-                Generate(ref ecb, request.ValueRO, mineralRules);
+                Generate(ref ecb, request.ValueRO, mineralRules, dbRef);
 
                 // 3. 처리 끝났으므로 요청 엔티티 파괴
                 ecb.DestroyEntity(entity);
@@ -60,7 +60,7 @@ namespace CoreDriller.Map
         }
 
 
-        private void Generate(ref EntityCommandBuffer ecb, in GenerateStageRequest request, NativeArray<MineralRule> mineralRules)
+        private void Generate(ref EntityCommandBuffer ecb, in GenerateStageRequest request, NativeArray<MineralRule> mineralRules, BlobAssetReference<BlockDatabaseBlob> dbRef)
         {
             int chunkWidth = math.max(0, request.Width);
             int chunkDepth = math.max(0, request.Depth);
@@ -91,13 +91,22 @@ namespace CoreDriller.Map
                     ecb.AddComponent<Map.Rendering.MeshNeedsUpdateTag>(chunkEntity);
                     ecb.AddComponent<PhysicsNeedsUpdateTag>(chunkEntity);
 
-                    GenerateChunkTerrain(ref blockBuffer, chunkX, chunkY, chunkWidth, chunkDepth, blockHardness, request.Seed, mineralRules);
+                    GenerateChunkTerrain(ref blockBuffer, chunkX, chunkY, chunkWidth, chunkDepth, blockHardness, request.Seed, mineralRules, dbRef);
                 }
             }
         }
 
         // 수직으로 깊은 맵 (테두리는 파괴 불가 벽, 내부는 흙과 광물 혼합)
-        private void GenerateChunkTerrain(ref DynamicBuffer<BlockBuffer> blockBuffer, int chunkX, int chunkY, int chunkWidth, int chunkDepth, float blockHardness, uint seed, NativeArray<MineralRule> mineralRules)
+        private void GenerateChunkTerrain(
+            ref DynamicBuffer<BlockBuffer> blockBuffer, 
+            int chunkX, 
+            int chunkY, 
+            int chunkWidth, 
+            int chunkDepth, 
+            float blockHardness, 
+            uint seed, 
+            NativeArray<MineralRule> mineralRules,
+            BlobAssetReference<BlockDatabaseBlob> dbRef)
         {
             float totalMaxDepthBlocks = chunkDepth * ChunkSize;
 
@@ -114,24 +123,23 @@ namespace CoreDriller.Map
 
                     if (isLeftWall || isRightWall || isBottomWall)
                     {
-                        blockData.BlockType = BlockTypes.Bedrock;
-                        blockData.Hardness = float.MaxValue;
-                        blockData.MiningTime = float.MaxValue;
-                        blockData.MaxHP = float.MaxValue;
-                        blockData.CurrentHP = float.MaxValue;
+                        blockData = GetBlockDataFromDB(BlockTypes.Bedrock, 1.0f, dbRef);
                     }
                     else
                     {
-                        // 1. 기본 흙 설정 (T1: 경도 0.5 * 난이도 보정, 시간 1.0, HP 1.0)
-                        blockData.BlockType = BlockTypes.Dirt;
-                        blockData.Hardness = 0.5f * blockHardness;
-                        blockData.MiningTime = 1.0f;
-                        blockData.MaxHP = 1.0f;
-                        blockData.CurrentHP = 1.0f;
-
-                        // 2. 광물 배치 로직 (심도 비율 계산)
-                        float currentDepthBlocks = (chunkY * ChunkSize) + y;
+                        // 심도 비율 계산 (y축의 뒤집힌 방향성을 바로잡아 아래로 갈수록 깊어지도록 계산)
+                        float currentDepthBlocks = (chunkY * ChunkSize) + (ChunkSize - 1 - y);
                         float depthRatio = currentDepthBlocks / totalMaxDepthBlocks;
+
+                        // 1/3 지점부터 돌(Abyssstone 대용)을 기본 블록으로 설정하고, 그 이전은 기본 흙으로 설정
+                        if (depthRatio < 1.0f / 3.0f)
+                        {
+                            blockData = GetBlockDataFromDB(BlockTypes.Dirt, blockHardness, dbRef);
+                        }
+                        else
+                        {
+                            blockData = GetBlockDataFromDB(BlockTypes.Stone, blockHardness, dbRef);
+                        }
 
                         // 월드 좌표 기반 노이즈 시드 생성
                         float2 worldPos = new float2((chunkX * ChunkSize) + x, currentDepthBlocks);
@@ -153,12 +161,7 @@ namespace CoreDriller.Map
 
                             if (normalizedNoise > rule.Threshold)
                             {
-                                blockData.BlockType = rule.BlockType;
-                                blockData.Hardness = rule.Hardness;
-                                blockData.MiningTime = rule.MiningTime;
-                                blockData.MaxHP = rule.MaxHP;
-                                blockData.CurrentHP = rule.MaxHP;
-                                // 더 희귀한 광물을 아래에 배치하려면 i가 큰 쪽을 나중에 덮어씌움
+                                blockData = GetBlockDataFromDB(rule.BlockType, 1.0f, dbRef);
                             }
                         }
                     }
@@ -166,6 +169,54 @@ namespace CoreDriller.Map
                     blockBuffer.Add(new BlockBuffer { Value = blockData });
                 }
             }
+        }
+
+        // 블록 데이터베이스에서 블록 정보를 안전하게 조회하여 BlockData 생성
+        private static BlockData GetBlockDataFromDB(int blockType, float hardnessMultiplier, BlobAssetReference<BlockDatabaseBlob> dbRef)
+        {
+            BlockData blockData = new BlockData
+            {
+                BlockType = blockType,
+                Hardness = 1.0f,
+                MiningTime = 1.0f,
+                MaxHP = 1.0f,
+                CurrentHP = 1.0f,
+                HasDecal = false
+            };
+
+            if (blockType == BlockTypes.Empty)
+            {
+                blockData.Hardness = 0f;
+                blockData.MiningTime = 0f;
+                return blockData;
+            }
+
+            ref var blocks = ref dbRef.Value.Blocks;
+            for (int i = 0; i < blocks.Length; i++)
+            {
+                if (blocks[i].BlockType == blockType)
+                {
+                    var blockInfo = blocks[i];
+                    // Bedrock은 절대 부서질 수 없도록 무한 설정 유지
+                    if (blockType == BlockTypes.Bedrock)
+                    {
+                        blockData.Hardness = float.MaxValue;
+                        blockData.MiningTime = float.MaxValue;
+                        blockData.MaxHP = float.MaxValue;
+                        blockData.CurrentHP = float.MaxValue;
+                    }
+                    else
+                    {
+                        blockData.Hardness = blockInfo.Hardness * hardnessMultiplier;
+                        blockData.MiningTime = blockInfo.MiningTime;
+                        blockData.MaxHP = blockInfo.MaxHP;
+                        blockData.CurrentHP = blockInfo.MaxHP;
+                    }
+                    break;
+                }
+            }
+
+            return blockData;
         }
     }
 }

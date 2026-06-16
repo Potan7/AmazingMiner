@@ -26,25 +26,41 @@ namespace CoreDriller.Map.Rendering
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public partial class TerrainGpuUploadSystem : SystemBase
     {
-        private Material _terrainMaterial;
         private EntityQuery _updateQuery;
 
         protected override void OnCreate()
         {
+            // UnityEngine.Debug.Log("[TerrainGpuUploadSystem] OnCreate called!");
             _updateQuery = GetEntityQuery(
                 ComponentType.ReadOnly<MeshNeedsUpdateTag>(),
                 ComponentType.ReadWrite<ChunkVertex>(),
                 ComponentType.ReadWrite<ChunkTriangle>()
             );
-            RequireForUpdate(_updateQuery);
-            _terrainMaterial = Resources.Load<Material>("TerrainMaterial");
+            // RequireForUpdate(_updateQuery);
         }
 
         protected override void OnUpdate()
         {
+            if (DataManager.Instance == null)
+            {
+                UnityEngine.Debug.Log("[TerrainGpuUploadSystem] OnUpdate: DataManager.Instance is NULL!");
+                return;
+            }
+            if (DataManager.Instance.TerrainMaterial == null)
+            {
+                UnityEngine.Debug.Log("[TerrainGpuUploadSystem] OnUpdate: DataManager.Instance.TerrainMaterial is NULL!");
+                return;
+            }
+
+            var terrainMaterial = DataManager.Instance.TerrainMaterial;
 
             // 1. 엔티티 배열 추출 (ToNativeArray 대신 복사본 사용으로 안전성 확보)
             using var entities = _updateQuery.ToEntityArray(Allocator.Temp);
+            // if (entities.Length > 0)
+            // {
+            //     UnityEngine.Debug.Log($"[TerrainGpuUploadSystem] OnUpdate: Found {entities.Length} chunks needing GPU upload.");
+            // }
+
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
             for (int i = 0; i < entities.Length; i++)
@@ -61,7 +77,7 @@ namespace CoreDriller.Map.Rendering
                     targetMesh.MarkDynamic();
                     EntityManager.AddComponentData(entity, new ChunkProceduralMesh { GeneratedMesh = targetMesh });
 
-                    var renderMeshArray = new RenderMeshArray(new[] { _terrainMaterial }, new[] { targetMesh });
+                    var renderMeshArray = new RenderMeshArray(new[] { terrainMaterial }, new[] { targetMesh });
                     var renderMeshDescription = new RenderMeshDescription
                     {
                         FilterSettings = RenderFilterSettings.Default,
@@ -90,6 +106,9 @@ namespace CoreDriller.Map.Rendering
                 
                 var vertices = EntityManager.GetBuffer<ChunkVertex>(entity);
                 var triangles = EntityManager.GetBuffer<ChunkTriangle>(entity);
+
+                // 4번 로그 복구: 청크 업로드 정보 출력 (필요 시 주석 해제)
+                // UnityEngine.Debug.Log($"[TerrainGpuUploadSystem] Chunk Entity: {entity}, Vertices: {vertices.Length}, Triangles: {triangles.Length}");
 
                 // 빈 청크가 되더라도 메쉬를 Clear하여 그래픽을 지워야 합니다.
                 targetMesh.Clear();

@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e44f86b7c3fad8f4db5f13f9a53cd929, type: 3}
+  m_Name: ItemData1
+  m_EditorClassIdentifier: CoreDriller.UI::ItemDatabaseSO
+  ItemVisualDatas:
+  - ItemID: 2
+    Name: Dirt
+    Description: "\uD759"
+    Icon: {fileID: 21300000, guid: ec0b356c0e78f1a49960491e0f5da728, type: 3}
+  - ItemID: 1001
+    Name: Coal
+    Description: "\uC11D\uD0C4"
+    Icon: {fileID: 21300000, guid: 4229ae6ac945361469af1590afe08ece, type: 3}
+  - ItemID: 1002
+    Name: Iron
+    Description: "\uCCA0"
+    Icon: {fileID: 21300000, guid: 845705f26ff11a34ca2fe2c14b1919e8, type: 3}
+  - ItemID: 1003
+    Name: Copper
+    Description: 
+    Icon: {fileID: 0}
+  - ItemID: 1004
+    Name: Gold
+    Description: "\uAE08"
+    Icon: {fileID: 21300000, guid: f444701e2795ac343ad2c607da38c62b, type: 3}
+  - ItemID: 3
+    Name: Stone
+    Description: "\uB3CC"
+    Icon: {fileID: 21300000, guid: b542b8c87dfdbe44eae00f823e41ec25, type: 3}
+  ItemSpecs:
+  - ItemID: 2
+    Value: 1
+    MaxStackMultiplier: 2
+  - ItemID: 1001
+    Value: 3
+    MaxStackMultiplier: 2
+  - ItemID: 1002
+    Value: 10
+    MaxStackMultiplier: 1.5
+  - ItemID: 1003
+    Value: 7
+    MaxStackMultiplier: 1.5
+  - ItemID: 1004
+    Value: 20
+    MaxStackMultiplier: 0.5
+  - ItemID: 3
+    Value: 2
+    MaxStackMultiplier: 1

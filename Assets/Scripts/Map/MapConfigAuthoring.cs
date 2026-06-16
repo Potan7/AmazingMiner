@@ -12,6 +12,9 @@ namespace CoreDriller.Map
         [Tooltip("균열 이펙트 스프라이트 시트가 연결된 머티리얼")]
         public Material damageDecalMaterial;
 
+        [Tooltip("스프라이트/아이템 파편 인스턴싱 렌더링에 사용되는 머티리얼 (SpriteMat)")]
+        public Material spriteMaterial;
+
         [Header("Prefabs")]
         [Tooltip("스프라이트 엔티티 프리팹 (RenderMesh 포함)")]
         [UnityEngine.Serialization.FormerlySerializedAs("damageDecalPrefab")]
@@ -37,8 +40,12 @@ namespace CoreDriller.Map
                 AddComponentObject(entity, new MapConfigMaterials
                 {
                     TerrainMaterial = authoring.terrainMaterial,
-                    DamageDecalMaterial = authoring.damageDecalMaterial
+                    DamageDecalMaterial = authoring.damageDecalMaterial,
+                    SpriteMaterial = authoring.spriteMaterial
                 });
+
+                // 3. 빈 아이템 파편 매핑 버퍼 추가 (조기 접근 시 ArgumentException 방지용)
+                AddBuffer<ItemDebrisPrefabElement>(entity);
             }
         }
     }
@@ -55,5 +62,6 @@ namespace CoreDriller.Map
     {
         public Material TerrainMaterial;
         public Material DamageDecalMaterial;
+        public Material SpriteMaterial;
     }
 }

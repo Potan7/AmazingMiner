@@ -1,4 +1,4 @@
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -136,17 +136,34 @@ namespace CoreDriller.Player.ItemPickup
 
         // 인벤토리 버퍼에 아이템을 집어넣는 헬퍼 함수
         [BurstCompile]
-        private static void AddToInventory(ref DynamicBuffer<InventoryBuffer> inventory, int itemType, int slotSize)
+        private void AddToInventory(ref DynamicBuffer<InventoryBuffer> inventory, int itemType, int slotSize)
         {
+            BlobAssetReference<ItemDatabaseBlob> dbRef = SystemAPI.GetSingleton<ItemDatabaseReference>().Reference;
+            float maxStackMultiplier = 1.0f;
+
+            ref var items = ref dbRef.Value.Items;
+            for (int j = 0; j < items.Length; j++)
+            {
+                if (items[j].ItemID == itemType)
+                {
+                    maxStackMultiplier = items[j].MaxStackMultiplier;
+                    break;
+                }
+            }
+            int slotRealSize = (int)math.round(slotSize * maxStackMultiplier);
+
             // 1. 기존 슬롯 중 동일 아이템이고 공간 여유가 있는 슬롯에 추가
             for (int i = 0; i < inventory.Length; i++)
             {
-                if (inventory[i].ItemType == itemType && inventory[i].Count < slotSize)
+                if (inventory[i].ItemType == itemType)
                 {
-                    var elem = inventory[i];
-                    elem.Count += 1;
-                    inventory[i] = elem;
-                    return;
+                    if (inventory[i].Count < slotRealSize)
+                    {
+                        var elem = inventory[i];
+                        elem.Count += 1;
+                        inventory[i] = elem;
+                        return;
+                    }
                 }
             }
             // 2. 비어 있는 첫 번째 슬롯(ItemType == 0)에 등록
