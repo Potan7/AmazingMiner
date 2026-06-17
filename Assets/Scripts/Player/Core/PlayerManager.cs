@@ -1,4 +1,4 @@
-﻿using System;
+﻿// System 제거 — Action 이벤트를 R3 Subject<Unit>으로 대체
 using Unity.Entities;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -6,6 +6,7 @@ using CoreDriller.Player.StatSystem;
 using CoreDriller.Player;
 using Potan.CoreUtils;
 using Cysharp.Threading.Tasks;
+using R3;
 
 [DefaultExecutionOrder(-100)] // 다른 시스템보다 먼저 실행되도록 설정 (필요에 따라 조정 가능)
 public class PlayerManager : MonoSingleton<PlayerManager>
@@ -24,8 +25,9 @@ public class PlayerManager : MonoSingleton<PlayerManager>
 
 
     private InputSystem_Actions playerInput;
-    public event Action OnInventoryKeyPerformed;
-    public event Action OnReturnKeyPerformed;
+
+    public readonly Subject<Unit> OnInventoryKeyPerformed = new();
+    public readonly Subject<Unit> OnReturnKeyPerformed    = new();
 
 
     protected override void OnAwake()
@@ -53,65 +55,59 @@ public class PlayerManager : MonoSingleton<PlayerManager>
 
     void OnEnable()
     {
-        if (playerInput == null)
-        {
-            playerInput = new InputSystem_Actions();
-
-            playerInput.Player.Move.performed += OnMovement;
-            playerInput.Player.Move.canceled += OnMovement;
-            playerInput.Player.Jump.started += OnJump;
-            playerInput.Player.Jump.canceled += OnJump;
-            playerInput.Player.Inventory.performed += OnInventoryKey;
-            playerInput.Player.Return.performed += OnReturnKey;
-        }
+        playerInput ??= new InputSystem_Actions();
         playerInput.Enable();
+
+        // 이동 입력 — performed(입력 시작/변경) / canceled(손 뗌)
+        playerInput.Player.Move.performed += OnMovement;
+        playerInput.Player.Move.canceled  += OnMovement;
+
+        // 점프(제트팩) 입력 — started(누름) / canceled(손 뗌)
+        playerInput.Player.Jump.started   += OnJump;
+        playerInput.Player.Jump.canceled  += OnJump;
+
+        // 인벤토리 / 귀환 키
+        playerInput.Player.Inventory.performed += OnInventoryKey;
+        playerInput.Player.Return.performed    += OnReturnKey;
     }
 
     void OnDisable()
     {
-        playerInput?.Disable();
+        if (playerInput == null) return;
+
+        playerInput.Player.Move.performed -= OnMovement;
+        playerInput.Player.Move.canceled  -= OnMovement;
+        playerInput.Player.Jump.started   -= OnJump;
+        playerInput.Player.Jump.canceled  -= OnJump;
+        playerInput.Player.Inventory.performed -= OnInventoryKey;
+        playerInput.Player.Return.performed    -= OnReturnKey;
+
+        playerInput.Disable();
     }
 
     protected override void OnDestroy()
     {
-        if (playerInput != null)
-        {
-            playerInput.Player.Move.performed -= OnMovement;
-            playerInput.Player.Move.canceled -= OnMovement;
-            playerInput.Player.Jump.started -= OnJump;
-            playerInput.Player.Jump.canceled -= OnJump;
-            playerInput.Player.Inventory.performed -= OnInventoryKey;
-            playerInput.Player.Return.performed -= OnReturnKey;
-            playerInput.Dispose();
-            playerInput = null;
-        }
+        playerInput?.Dispose();
+        playerInput = null;
+
+        // Subject 완료 처리 (모든 구독자에게 스트림 종료 알림)
+        OnInventoryKeyPerformed.OnCompleted();
+        OnReturnKeyPerformed.OnCompleted();
+
         base.OnDestroy();
     }
 
-    void OnMovement(InputAction.CallbackContext context)
-    {
-        MoveInput = context.ReadValue<Vector2>();
-    }
+    // --- InputAction 콜백 메서드 ---
 
-    void OnInventoryKey(InputAction.CallbackContext context)
-    {
-        OnInventoryKeyPerformed?.Invoke();
-    }
+    void OnMovement(InputAction.CallbackContext ctx)
+        => MoveInput = ctx.canceled ? Vector2.zero : ctx.ReadValue<Vector2>();
 
-    void OnJump(InputAction.CallbackContext context)
-    {
-        if (context.started)
-        {
-            JumpInput = true;
-        }
-        else if (context.canceled)
-        {
-            JumpInput = false;
-        }
-    }
+    void OnJump(InputAction.CallbackContext ctx)
+        => JumpInput = ctx.started;
 
-    void OnReturnKey(InputAction.CallbackContext context)
-    {
-        OnReturnKeyPerformed?.Invoke();
-    }
+    void OnInventoryKey(InputAction.CallbackContext ctx)
+        => OnInventoryKeyPerformed.OnNext(Unit.Default);
+
+    void OnReturnKey(InputAction.CallbackContext ctx)
+        => OnReturnKeyPerformed.OnNext(Unit.Default);
 }

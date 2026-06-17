@@ -5,6 +5,8 @@ using Unity.Cinemachine;
 using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
+using R3;
+using Cysharp.Threading.Tasks;
 
 public class PlayerMono : MonoBehaviour
 {
@@ -73,19 +75,14 @@ public class PlayerMono : MonoBehaviour
         }
     }
 
-    void OnEnable()
+    void Start()
     {
+        // Return 키 입력 이벤트 구독
         if (PlayerManager.Instance != null)
         {
-            PlayerManager.Instance.OnReturnKeyPerformed += OnReturnKey;
-        }
-    }
-
-    void OnDisable()
-    {
-        if (PlayerManager.Instance != null)
-        {
-            PlayerManager.Instance.OnReturnKeyPerformed -= OnReturnKey;
+            PlayerManager.Instance.OnReturnKeyPerformed
+                .Subscribe(_ => OnReturnKey())
+                .AddTo(destroyCancellationToken);
         }
     }
 
