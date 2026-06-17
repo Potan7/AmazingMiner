@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36bdc5dbef5b4124c88fd9f93d298f54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoreDriller.Player.PlayerAuthoring
+  RayLength: 1.5
 --- !u!114 &7804616680187459876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -114,4 +115,26 @@ MonoBehaviour:
   capsuleGeometry:
     m_Center1: {x: 0, y: 0.3}
     m_Center2: {x: 0, y: -0.3}
-    m_Radius: 1
+    m_Radius: 0.8
+  boxGeometry:
+    vertices:
+      m_Vertex0: {x: 0, y: 0}
+      m_Vertex1: {x: 0, y: 0}
+      m_Vertex2: {x: 0, y: 0}
+      m_Vertex3: {x: 0, y: 0}
+      m_Vertex4: {x: 0, y: 0}
+      m_Vertex5: {x: 0, y: 0}
+      m_Vertex6: {x: 0, y: 0}
+      m_Vertex7: {x: 0, y: 0}
+    normals:
+      m_Vertex0: {x: 0, y: 0}
+      m_Vertex1: {x: 0, y: 0}
+      m_Vertex2: {x: 0, y: 0}
+      m_Vertex3: {x: 0, y: 0}
+      m_Vertex4: {x: 0, y: 0}
+      m_Vertex5: {x: 0, y: 0}
+      m_Vertex6: {x: 0, y: 0}
+      m_Vertex7: {x: 0, y: 0}
+    m_Centroid: {x: 0, y: 0}
+    m_Radius: 0
+    m_Count: 3
