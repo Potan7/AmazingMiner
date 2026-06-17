@@ -18,6 +18,7 @@ MonoBehaviour:
     Description: 
     Icon: {fileID: 0}
     TerrainSprite: {fileID: 0}
+    TerrainSprites: []
     AtlasIndex: 2
     DropItemID: 0
   - BlockType: 2
@@ -25,6 +26,16 @@ MonoBehaviour:
     Description: 
     Icon: {fileID: 0}
     TerrainSprite: {fileID: -3126159786139440954, guid: 2b1c8f157034bfa4fadaff1b41726297, type: 3}
+    TerrainSprites:
+    - {fileID: -1305164013205970629, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
+    - {fileID: 391664060, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
+    - {fileID: 1922066039, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
+    - {fileID: 405990205, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
+    - {fileID: -688708418, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
+    - {fileID: 1026699304, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
+    - {fileID: 766641482, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
+    - {fileID: 701011900, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
+    - {fileID: 665000650, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
     AtlasIndex: 1
     DropItemID: 0
   - BlockType: 3
@@ -32,6 +43,7 @@ MonoBehaviour:
     Description: 
     Icon: {fileID: 0}
     TerrainSprite: {fileID: 0}
+    TerrainSprites: []
     AtlasIndex: 3
     DropItemID: 0
   - BlockType: 1001
@@ -39,6 +51,7 @@ MonoBehaviour:
     Description: 
     Icon: {fileID: 0}
     TerrainSprite: {fileID: 0}
+    TerrainSprites: []
     AtlasIndex: 2
     DropItemID: 0
   - BlockType: 1002
@@ -46,6 +59,7 @@ MonoBehaviour:
     Description: 
     Icon: {fileID: 0}
     TerrainSprite: {fileID: 0}
+    TerrainSprites: []
     AtlasIndex: 4
     DropItemID: 0
   - BlockType: 1003
@@ -53,6 +67,7 @@ MonoBehaviour:
     Description: 
     Icon: {fileID: 0}
     TerrainSprite: {fileID: 0}
+    TerrainSprites: []
     AtlasIndex: 5
     DropItemID: 0
   - BlockType: 1004
@@ -60,6 +75,7 @@ MonoBehaviour:
     Description: 
     Icon: {fileID: 0}
     TerrainSprite: {fileID: 0}
+    TerrainSprites: []
     AtlasIndex: 6
     DropItemID: 0
   BlockSpecs:

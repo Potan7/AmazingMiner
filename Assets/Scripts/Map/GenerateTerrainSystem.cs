@@ -114,6 +114,16 @@ namespace CoreDriller.Map
             {
                 for (int y = 0; y < ChunkSize; y++)
                 {
+                    // 각 타일의 절대 월드 좌표 계산
+                    int worldX = chunkX * ChunkSize + x;
+                    int worldY = chunkY * ChunkSize + y;
+
+                    // 월드 좌표와 시드를 해싱하여 결정론적이고 독립적인 시드 값 도출 (선형 패턴 방지)
+                    uint hashedSeed = math.hash(new uint3((uint)worldX, (uint)worldY, seed));
+                    if (hashedSeed == 0) hashedSeed = 1;
+
+                    var random = new Unity.Mathematics.Random(hashedSeed);
+
                     BlockData blockData = new BlockData();
 
                     // 테두리 판별
@@ -123,7 +133,7 @@ namespace CoreDriller.Map
 
                     if (isLeftWall || isRightWall || isBottomWall)
                     {
-                        blockData = GetBlockDataFromDB(BlockTypes.Bedrock, 1.0f, dbRef);
+                        blockData = GetBlockDataFromDB(BlockTypes.Bedrock, 1.0f, dbRef, ref random);
                     }
                     else
                     {
@@ -134,11 +144,11 @@ namespace CoreDriller.Map
                         // 1/3 지점부터 돌(Abyssstone 대용)을 기본 블록으로 설정하고, 그 이전은 기본 흙으로 설정
                         if (depthRatio < 1.0f / 3.0f)
                         {
-                            blockData = GetBlockDataFromDB(BlockTypes.Dirt, blockHardness, dbRef);
+                            blockData = GetBlockDataFromDB(BlockTypes.Dirt, blockHardness, dbRef, ref random);
                         }
                         else
                         {
-                            blockData = GetBlockDataFromDB(BlockTypes.Stone, blockHardness, dbRef);
+                            blockData = GetBlockDataFromDB(BlockTypes.Stone, blockHardness, dbRef, ref random);
                         }
 
                         // 월드 좌표 기반 노이즈 시드 생성
@@ -161,7 +171,7 @@ namespace CoreDriller.Map
 
                             if (normalizedNoise > rule.Threshold)
                             {
-                                blockData = GetBlockDataFromDB(rule.BlockType, 1.0f, dbRef);
+                                blockData = GetBlockDataFromDB(rule.BlockType, 1.0f, dbRef, ref random);
                             }
                         }
                     }
@@ -172,7 +182,7 @@ namespace CoreDriller.Map
         }
 
         // 블록 데이터베이스에서 블록 정보를 안전하게 조회하여 BlockData 생성
-        private static BlockData GetBlockDataFromDB(int blockType, float hardnessMultiplier, BlobAssetReference<BlockDatabaseBlob> dbRef)
+        private static BlockData GetBlockDataFromDB(int blockType, float hardnessMultiplier, BlobAssetReference<BlockDatabaseBlob> dbRef, ref Unity.Mathematics.Random random)
         {
             BlockData blockData = new BlockData
             {
@@ -181,6 +191,7 @@ namespace CoreDriller.Map
                 MiningTime = 1.0f,
                 MaxHP = 1.0f,
                 CurrentHP = 1.0f,
+                VariantIndex = 0,
                 HasDecal = false
             };
 
@@ -196,7 +207,7 @@ namespace CoreDriller.Map
             {
                 if (blocks[i].BlockType == blockType)
                 {
-                    var blockInfo = blocks[i];
+                    ref var blockInfo = ref blocks[i];
                     // Bedrock은 절대 부서질 수 없도록 무한 설정 유지
                     if (blockType == BlockTypes.Bedrock)
                     {
@@ -211,6 +222,17 @@ namespace CoreDriller.Map
                         blockData.MiningTime = blockInfo.MiningTime;
                         blockData.MaxHP = blockInfo.MaxHP;
                         blockData.CurrentHP = blockInfo.MaxHP;
+                    }
+
+                    // 랜덤 베리에이션 인덱스 지정
+                    int variantCount = blockInfo.UVRects.Length;
+                    if (variantCount > 1)
+                    {
+                        blockData.VariantIndex = random.NextInt(0, variantCount);
+                    }
+                    else
+                    {
+                        blockData.VariantIndex = 0;
                     }
                     break;
                 }

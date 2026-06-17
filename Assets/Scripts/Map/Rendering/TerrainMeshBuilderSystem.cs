@@ -56,13 +56,15 @@ namespace CoreDriller.Map.Rendering
             {
                 for (int y = 0; y < ChunkSize; y++)
                 {
-                    int blockType = blocks[x * ChunkSize + y].Value.BlockType;
+                    var block = blocks[x * ChunkSize + y].Value;
+                    int blockType = block.BlockType;
+                    int variantIndex = block.VariantIndex;
                     // Empty(0)는 렌더링하지 않음
                     if (blockType == BlockTypes.Empty)
                         continue;
 
                     // UV 계산 (블록 DB에서 UVRect 조회)
-                    float4 uvRect = GetBlockUVRect(blockType); 
+                    float4 uvRect = GetBlockUVRect(blockType, variantIndex); 
 
                     float2 uvMin = uvRect.zw; // OffsetX, OffsetY
                     float2 uvMax = uvRect.zw + uvRect.xy; // Offset + Scale
@@ -107,14 +109,20 @@ namespace CoreDriller.Map.Rendering
             triangles.Add(new ChunkTriangle { Value = startIndex + 3 });
         }
 
-        private float4 GetBlockUVRect(int blockType)
+        private float4 GetBlockUVRect(int blockType, int variantIndex)
         {
             ref var blocks = ref BlockDB.Value.Blocks;
             for (int i = 0; i < blocks.Length; i++)
             {
                 if (blocks[i].BlockType == blockType)
                 {
-                    return blocks[i].UVRect;
+                    ref var rects = ref blocks[i].UVRects;
+                    if (rects.Length > 0)
+                    {
+                        int idx = variantIndex % rects.Length;
+                        return rects[idx];
+                    }
+                    return new float4(1f, 1f, 0f, 0f); // Default fallback (Full texture)
                 }
             }
             return new float4(1f, 1f, 0f, 0f); // Default fallback (Full texture)

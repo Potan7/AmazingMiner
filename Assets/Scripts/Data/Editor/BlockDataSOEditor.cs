@@ -71,7 +71,7 @@ public class BlockDataSOEditor : Editor
             SerializedProperty descProp = visualElement.FindPropertyRelative("Description");
             SerializedProperty iconProp = visualElement.FindPropertyRelative("Icon");
             SerializedProperty terrainSpriteProp = visualElement.FindPropertyRelative("TerrainSprite");
-            SerializedProperty atlasIdxProp = visualElement.FindPropertyRelative("AtlasIndex");
+            SerializedProperty terrainSpritesProp = visualElement.FindPropertyRelative("TerrainSprites");
 
             SerializedProperty idSpec = specElement.FindPropertyRelative("BlockType");
             SerializedProperty hardnessProp = specElement.FindPropertyRelative("Hardness");
@@ -149,8 +149,8 @@ public class BlockDataSOEditor : Editor
                 EditorGUILayout.LabelField("Description");
                 descProp.stringValue = EditorGUILayout.TextArea(descProp.stringValue, GUILayout.Height(40));
 
-                EditorGUILayout.PropertyField(terrainSpriteProp, new GUIContent("Terrain Sprite"));
-                EditorGUILayout.PropertyField(atlasIdxProp, new GUIContent("Atlas Index (Fallback)"));
+                EditorGUILayout.PropertyField(terrainSpriteProp, new GUIContent("Terrain Sprite (Fallback)"));
+                EditorGUILayout.PropertyField(terrainSpritesProp, new GUIContent("Terrain Sprites (Variants)"), true);
 
                 EditorGUILayout.Space(5);
                 EditorGUILayout.LabelField("Specs (Logic)", EditorStyles.boldLabel);
@@ -224,7 +224,7 @@ public class BlockDataSOEditor : Editor
             newVisual.FindPropertyRelative("Description").stringValue = "";
             newVisual.FindPropertyRelative("Icon").objectReferenceValue = null;
             newVisual.FindPropertyRelative("TerrainSprite").objectReferenceValue = null;
-            newVisual.FindPropertyRelative("AtlasIndex").intValue = 0;
+            newVisual.FindPropertyRelative("TerrainSprites").ClearArray();
 
             newSpec.FindPropertyRelative("BlockType").intValue = nextID;
             newSpec.FindPropertyRelative("DropItemID").intValue = nextID;

@@ -172,18 +172,32 @@ namespace CoreDriller
                 for (int i = 0; i < blockSpecs.Count; i++)
                 {
                     var spec = blockSpecs[i];
-                    int atlasIndex = 0;
-                    float4 uvRect = new float4(1f, 1f, 0f, 0f); // Default full scale
+                    float4[] uvRects = null;
 
                     if (visualDatas.TryGetValue(spec.BlockType, out var visual))
                     {
-                        atlasIndex = visual.AtlasIndex;
-                        uvRect = CalculateBlockUV(visual.TerrainSprite, atlasIndex);
+                        uvRects = CalculateBlockUVs(visual.TerrainSprites, visual.TerrainSprite);
 
-                        if (visual.TerrainSprite != null && visual.TerrainSprite.texture != null)
+                        // 텍스처 수집 (가장 먼저 나오는 유효한 스프라이트 텍스처 사용)
+                        if (visual.TerrainSprites != null && visual.TerrainSprites.Count > 0)
+                        {
+                            foreach (var s in visual.TerrainSprites)
+                            {
+                                if (s != null && s.texture != null)
+                                {
+                                    terrainTexture = s.texture;
+                                    break;
+                                }
+                            }
+                        }
+                        if (terrainTexture == null && visual.TerrainSprite != null && visual.TerrainSprite.texture != null)
                         {
                             terrainTexture = visual.TerrainSprite.texture;
                         }
+                    }
+                    else
+                    {
+                        uvRects = CalculateBlockUVs(null, null);
                     }
 
                     array[i] = new BlockBlobInfo
@@ -192,10 +206,14 @@ namespace CoreDriller
                         Hardness = spec.Hardness,
                         MiningTime = spec.MiningTime,
                         MaxHP = spec.MaxHP,
-                        AtlasIndex = atlasIndex,
-                        UVRect = uvRect,
                         DropItemID = spec.DropItemID
                     };
+
+                    BlobBuilderArray<float4> uvRectsBlob = builder.Allocate(ref array[i].UVRects, uvRects.Length);
+                    for (int u = 0; u < uvRects.Length; u++)
+                    {
+                        uvRectsBlob[u] = uvRects[u];
+                    }
                 }
 
                 // 동적으로 패킹된 아틀라스/스프라이트 시트 텍스처를 지형 머티리얼에 자동 매핑
@@ -215,7 +233,7 @@ namespace CoreDriller
             }
         }
 
-        public static float4 CalculateBlockUV(Sprite sprite, int atlasIndex)
+        public static float4 CalculateBlockUV(Sprite sprite)
         {
             if (sprite != null)
             {
@@ -236,15 +254,34 @@ namespace CoreDriller
                 }
             }
 
-            // 스프라이트가 없을 때 기존의 4x4 아틀라스 인덱스 기반 폴백 계산
-            const float atlasSize = 4.0f;
-            const float uvStep = 1.0f / atlasSize; // 0.25f
-            int xIdx = atlasIndex % (int)atlasSize;
-            int yIdx = atlasIndex / (int)atlasSize;
-            float offsetX = xIdx * uvStep;
-            float offsetY = 1.0f - ((yIdx + 1) * uvStep);
+            // 스프라이트가 없을 때 디폴트 풀 텍스처 영역 반환
+            return new float4(1f, 1f, 0f, 0f);
+        }
 
-            return new float4(uvStep, uvStep, offsetX, offsetY);
+        public static float4[] CalculateBlockUVs(List<Sprite> sprites, Sprite fallbackSprite)
+        {
+            if (sprites != null && sprites.Count > 0)
+            {
+                var rects = new List<float4>();
+                for (int i = 0; i < sprites.Count; i++)
+                {
+                    if (sprites[i] != null)
+                    {
+                        rects.Add(CalculateBlockUV(sprites[i]));
+                    }
+                }
+                if (rects.Count > 0)
+                {
+                    return rects.ToArray();
+                }
+            }
+
+            if (fallbackSprite != null)
+            {
+                return new float4[] { CalculateBlockUV(fallbackSprite) };
+            }
+
+            return new float4[] { CalculateBlockUV(null) };
         }
     }
 }

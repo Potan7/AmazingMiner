@@ -26,8 +26,7 @@ namespace CoreDriller.Map
         public float Hardness;
         public float MiningTime;
         public float MaxHP;
-        public int AtlasIndex;
-        public float4 UVRect; // 추가된 동적 스프라이트 UV 영역
+        public BlobArray<float4> UVRects; // 여러 스프라이트 베리에이션 영역
         public int DropItemID;
     }
 
@@ -50,6 +49,7 @@ namespace CoreDriller.Map
         public float MiningTime;  // 기본 소요 시간 (T)
         public float MaxHP;       // 최대 내구도
         public float CurrentHP;   // 현재 남은 내구도
+        public int VariantIndex;  // 랜덤 외형 스프라이트 인덱스
         public bool HasDecal;     // 이 블록에 균열 데칼이 생성되었는지 여부
     }
 
