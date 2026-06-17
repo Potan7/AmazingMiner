@@ -33,6 +33,9 @@ namespace CoreDriller
 
         private bool isInitialized = false;
 
+        private BlobAssetReference<ItemDatabaseBlob> itemBlobRef;
+        private BlobAssetReference<BlockDatabaseBlob> blockBlobRef;
+
         protected override void OnAwake()
         {
 #if UNITY_EDITOR
@@ -49,6 +52,19 @@ namespace CoreDriller
                 }
             }
 #endif
+        }
+
+        protected override void OnDestroy()
+        {
+            if (itemBlobRef.IsCreated)
+            {
+                itemBlobRef.Dispose();
+            }
+            if (blockBlobRef.IsCreated)
+            {
+                blockBlobRef.Dispose();
+            }
+            base.OnDestroy();
         }
 
         public async UniTask InitializeAsync()
@@ -151,10 +167,10 @@ namespace CoreDriller
                     };
                 }
 
-                BlobAssetReference<ItemDatabaseBlob> blobRef = builder.CreateBlobAssetReference<ItemDatabaseBlob>(Allocator.Persistent);
+                itemBlobRef = builder.CreateBlobAssetReference<ItemDatabaseBlob>(Allocator.Persistent);
 
                 Entity ItemDBEntity = entityManager.CreateEntity();
-                entityManager.AddComponentData(ItemDBEntity, new ItemDatabaseReference { Reference = blobRef });
+                entityManager.AddComponentData(ItemDBEntity, new ItemDatabaseReference { Reference = itemBlobRef });
             }
         }
 
@@ -226,10 +242,10 @@ namespace CoreDriller
                     }
                 }
 
-                BlobAssetReference<BlockDatabaseBlob> blobRef = builder.CreateBlobAssetReference<BlockDatabaseBlob>(Allocator.Persistent);
+                blockBlobRef = builder.CreateBlobAssetReference<BlockDatabaseBlob>(Allocator.Persistent);
 
                 Entity blockDBEntity = entityManager.CreateEntity();
-                entityManager.AddComponentData(blockDBEntity, new BlockDatabaseReference { Reference = blobRef });
+                entityManager.AddComponentData(blockDBEntity, new BlockDatabaseReference { Reference = blockBlobRef });
             }
         }
 

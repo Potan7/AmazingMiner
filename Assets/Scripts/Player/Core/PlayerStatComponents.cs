@@ -1,4 +1,4 @@
-﻿
+
 using Unity.Entities;
 using UnityEngine;
 
@@ -54,4 +54,7 @@ namespace CoreDriller.Player.StatSystem
 
     // 연료 고갈 시 강제 귀환을 처리하기 위한 태그
     public struct ForcedReturnTag : IComponentData {}
+
+    // R키 입력을 통한 정상 귀환을 처리하기 위한 태그
+    public struct NormalReturnTag : IComponentData {}
 }

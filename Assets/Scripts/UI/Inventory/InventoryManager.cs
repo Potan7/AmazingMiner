@@ -25,7 +25,7 @@ public class InventoryManager : MonoBehaviour
         PlayerManager.Instance.OnInventoryKeyPerformed -= OnInventoryKeyPerformed;
     }
 
-    void OnInventoryKeyPerformed(InputAction.CallbackContext context)
+    void OnInventoryKeyPerformed()
     {
         SetInventoryPanel(!isInventoryPanelActive);
     }

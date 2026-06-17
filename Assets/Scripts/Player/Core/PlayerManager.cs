@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Unity.Entities;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -24,7 +24,8 @@ public class PlayerManager : MonoSingleton<PlayerManager>
 
 
     private InputSystem_Actions playerInput;
-    public event Action<InputAction.CallbackContext> OnInventoryKeyPerformed;
+    public event Action OnInventoryKeyPerformed;
+    public event Action OnReturnKeyPerformed;
 
 
     protected override void OnAwake()
@@ -50,15 +51,6 @@ public class PlayerManager : MonoSingleton<PlayerManager>
         PlayerEntity = entity;
     }
 
-    //private void Start()
-    //{
-    //    // 플레이어 UI에 초기 스탯 값 전달
-    //    PlayerUIEvents.TriggerFuelChanged(CurrentStats.MaxFuel, CurrentStats.MaxFuel);
-    //    PlayerUIEvents.TriggerHealthChanged(CurrentStats.MaxHealth, CurrentStats.MaxHealth);
-    //    PlayerUIEvents.TriggerDrillStateChanged(0f, false);
-    //    PlayerUIEvents.TriggerInventoryChanged();
-    //}
-
     void OnEnable()
     {
         if (playerInput == null)
@@ -70,6 +62,7 @@ public class PlayerManager : MonoSingleton<PlayerManager>
             playerInput.Player.Jump.started += OnJump;
             playerInput.Player.Jump.canceled += OnJump;
             playerInput.Player.Inventory.performed += OnInventoryKey;
+            playerInput.Player.Return.performed += OnReturnKey;
         }
         playerInput.Enable();
     }
@@ -88,6 +81,7 @@ public class PlayerManager : MonoSingleton<PlayerManager>
             playerInput.Player.Jump.started -= OnJump;
             playerInput.Player.Jump.canceled -= OnJump;
             playerInput.Player.Inventory.performed -= OnInventoryKey;
+            playerInput.Player.Return.performed -= OnReturnKey;
             playerInput.Dispose();
             playerInput = null;
         }
@@ -101,7 +95,7 @@ public class PlayerManager : MonoSingleton<PlayerManager>
 
     void OnInventoryKey(InputAction.CallbackContext context)
     {
-        OnInventoryKeyPerformed?.Invoke(context);
+        OnInventoryKeyPerformed?.Invoke();
     }
 
     void OnJump(InputAction.CallbackContext context)
@@ -114,5 +108,10 @@ public class PlayerManager : MonoSingleton<PlayerManager>
         {
             JumpInput = false;
         }
+    }
+
+    void OnReturnKey(InputAction.CallbackContext context)
+    {
+        OnReturnKeyPerformed?.Invoke();
     }
 }

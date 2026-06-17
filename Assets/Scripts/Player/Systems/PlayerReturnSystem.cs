@@ -5,7 +5,10 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using CoreDriller.Player.StatSystem;
+using UnityEngine.SceneManagement;
+using CoreDriller.Map;
 using CoreDriller.Motion;
+using CoreDriller.Map.Rendering;
 
 namespace CoreDriller.Player
 {
@@ -26,6 +29,7 @@ namespace CoreDriller.Player
             // 1. 연료 고갈 감지 단계: CurrentFuel <= 0 인 엔티티를 찾아서 ForcedReturnTag 추가
             foreach (var (movementData, entity) in SystemAPI.Query<RefRO<PlayerMovementData>>()
                          .WithNone<ForcedReturnTag>()
+                         .WithNone<NormalReturnTag>()
                          .WithEntityAccess())
             {
                 if (movementData.ValueRO.CurrentFuel <= 0f)
@@ -38,42 +42,67 @@ namespace CoreDriller.Player
             ecb.Playback(state.EntityManager);
             ecb.Dispose();
 
-            // 2. 강제 귀환 시퀀스 처리 단계
-            ProcessForcedReturn(ref state);
+            // 2. 귀환 시퀀스 처리 단계 (강제 귀환 또는 일반 복귀)
+            ProcessReturn(ref state);
         }
 
-        private void ProcessForcedReturn(ref SystemState state)
+        private void ProcessReturn(ref SystemState state)
         {
-            // ForcedReturnTag가 붙은 스탯 엔티티가 없다면 스킵
-            if (!SystemAPI.TryGetSingletonEntity<ForcedReturnTag>(out var statEntity)) return;
+            Entity statEntity = Entity.Null;
+            bool isForced = false;
+
+            if (SystemAPI.TryGetSingletonEntity<ForcedReturnTag>(out var forcedEntity))
+            {
+                statEntity = forcedEntity;
+                isForced = true;
+            }
+            else if (SystemAPI.TryGetSingletonEntity<NormalReturnTag>(out var normalEntity))
+            {
+                statEntity = normalEntity;
+                isForced = false;
+            }
+
+            if (statEntity == Entity.Null) return;
 
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-            // 2.1. 플레이어 위치 및 물리 좌표 리셋
-            if (SystemAPI.TryGetSingletonEntity<PlayerTag>(out var playerEntity))
+            // 2.1. 강제 귀환일 경우 인벤토리 패널티 적용
+            if (isForced)
             {
-                // 지상의 안전한 리스폰 좌표 (0, 3, 0)
-                float3 spawnPos = new float3(0f, 3f, 0f);
-
-                if (SystemAPI.HasComponent<LocalTransform>(playerEntity))
-                {
-                    var trans = SystemAPI.GetComponentRW<LocalTransform>(playerEntity);
-                    trans.ValueRW.Position = spawnPos;
-                }
-
-                // 물리 엔진 바디 좌표 및 속도 초기화 (LowLevelPhysics2D 충돌 충격 방지)
-                if (SystemAPI.HasComponent<PhysicsBodyHandle>(playerEntity))
-                {
-                    var bodyHandle = SystemAPI.GetComponentRW<PhysicsBodyHandle>(playerEntity);
-                    if (bodyHandle.ValueRO.Body.isValid)
-                    {
-                        bodyHandle.ValueRW.Body.position = spawnPos.xy;
-                        bodyHandle.ValueRW.Body.linearVelocity = Vector2.zero;
-                    }
-                }
+                ApplyInventoryPenalty(ref state, statEntity);
             }
 
-            // 2.2. 인벤토리 수집 광물 가치 내림차순 정렬 및 최상위 자원 50% 유실 패널티 적용
+            // 2.2. 플레이어 연료 리필 (MaxFuel 완충 처리)
+            if (SystemAPI.HasComponent<PlayerMovementData>(statEntity))
+            {
+                var movement = SystemAPI.GetComponentRW<PlayerMovementData>(statEntity);
+                movement.ValueRW.CurrentFuel = movement.ValueRO.MaxFuel;
+                Debug.Log($"[PlayerReturnSystem] 플레이어 연료 리필 완료 (양: {movement.ValueRO.MaxFuel})");
+            }
+
+            // 2.3. 귀환 상태 태그 해제
+            if (isForced)
+            {
+                ecb.RemoveComponent<ForcedReturnTag>(statEntity);
+            }
+            else
+            {
+                ecb.RemoveComponent<NormalReturnTag>(statEntity);
+            }
+
+            ecb.Playback(state.EntityManager);
+            ecb.Dispose();
+
+            // 2.4. 휘발성 엔티티 및 Box2D 물리 리소스 정리 (메모리 누수 방지)
+            CleanupPhysicsAndVolatileEntities(ref state);
+
+            // 2.5. HomeScene으로 씬 전환
+            Debug.Log($"[PlayerReturnSystem] 귀환 시퀀스 완료 (강제여부: {isForced}). HomeScene으로 이동합니다.");
+            SceneManager.LoadScene("HomeScene");
+        }
+
+        private void ApplyInventoryPenalty(ref SystemState state, Entity statEntity)
+        {
             if (SystemAPI.HasBuffer<InventoryBuffer>(statEntity))
             {
                 var inventory = SystemAPI.GetBuffer<InventoryBuffer>(statEntity);
@@ -141,20 +170,109 @@ namespace CoreDriller.Player
                     items.Dispose();
                 }
             }
+        }
 
-            // 2.3. 플레이어 연료 리필 (MaxFuel 완충 처리)
-            if (SystemAPI.HasComponent<PlayerMovementData>(statEntity))
+        private void CleanupPhysicsAndVolatileEntities(ref SystemState state)
+        {
+            var em = state.EntityManager;
+
+            // 1. ChunkPhysicsBody를 가진 모든 엔티티의 Box2D 바디 파괴 및 엔티티 파괴
+            using (var chunksQuery = em.CreateEntityQuery(typeof(ChunkPhysicsBody)))
             {
-                var movement = SystemAPI.GetComponentRW<PlayerMovementData>(statEntity);
-                movement.ValueRW.CurrentFuel = movement.ValueRO.MaxFuel;
-                Debug.Log($"[ForcedReturn] 플레이어 연료 리필 완료 (양: {movement.ValueRO.MaxFuel})");
+                var chunkBodies = chunksQuery.ToComponentDataArray<ChunkPhysicsBody>(Allocator.Temp);
+                for (int i = 0; i < chunkBodies.Length; i++)
+                {
+                    var body = chunkBodies[i].Body;
+                    if (body.isValid)
+                    {
+                        body.Destroy();
+                    }
+                }
+            }
+            using (var chunkEntitiesQuery = em.CreateEntityQuery(typeof(ChunkComponent)))
+            {
+                em.DestroyEntity(chunkEntitiesQuery);
             }
 
-            // 2.4. 귀환 상태 태그 해제
-            ecb.RemoveComponent<ForcedReturnTag>(statEntity);
+            // 2. Debris의 Box2D 물리 바디 파괴 및 엔티티 파괴
+            using (var debrisQuery = em.CreateEntityQuery(
+                ComponentType.ReadOnly<DebrisTag>(),
+                ComponentType.ReadOnly<PhysicsBodyHandle>()))
+            {
+                var debrisBodies = debrisQuery.ToComponentDataArray<PhysicsBodyHandle>(Allocator.Temp);
+                for (int i = 0; i < debrisBodies.Length; i++)
+                {
+                    var body = debrisBodies[i].Body;
+                    if (body.isValid)
+                    {
+                        body.Destroy();
+                    }
+                }
+            }
+            using (var debrisEntitiesQuery = em.CreateEntityQuery(typeof(DebrisTag)))
+            {
+                em.DestroyEntity(debrisEntitiesQuery);
+            }
 
-            ecb.Playback(state.EntityManager);
-            ecb.Dispose();
+            // 3. 데칼 엔티티 파괴
+            using (var decalQuery = em.CreateEntityQuery(typeof(DamageDecalTag)))
+            {
+                em.DestroyEntity(decalQuery);
+            }
+
+            // 4. MapConfigData 엔티티 내에 임시 저장된 런타임 생성 커스텀 파편 프리팹 파괴 및 버퍼 클리어
+            if (SystemAPI.TryGetSingletonEntity<MapConfigData>(out var configEntity))
+            {
+                if (em.HasBuffer<ItemDebrisPrefabElement>(configEntity))
+                {
+                    var buffer = em.GetBuffer<ItemDebrisPrefabElement>(configEntity);
+                    
+                    // 1. 임시 리스트에 프리팹 엔티티 복사
+                    var prefabsToDestroy = new NativeList<Entity>(buffer.Length, Allocator.Temp);
+                    for (int i = 0; i < buffer.Length; i++)
+                    {
+                        prefabsToDestroy.Add(buffer[i].DebrisPrefab);
+                    }
+
+                    // 2. 버퍼는 즉시 클리어 (구조적 변경 전에 수행하면 안전)
+                    buffer.Clear();
+
+                    // 3. 복사해둔 엔티티들을 루프 돌며 안전하게 파괴 (구조적 변경 발생)
+                    for (int i = 0; i < prefabsToDestroy.Length; i++)
+                    {
+                        var debrisPrefab = prefabsToDestroy[i];
+                        if (debrisPrefab != Entity.Null && em.Exists(debrisPrefab))
+                        {
+                            if (em.HasComponent<PhysicsBodyHandle>(debrisPrefab))
+                            {
+                                var bodyHandle = em.GetComponentData<PhysicsBodyHandle>(debrisPrefab);
+                                if (bodyHandle.Body.isValid)
+                                {
+                                    bodyHandle.Body.Destroy();
+                                }
+                            }
+                            em.DestroyEntity(debrisPrefab);
+                        }
+                    }
+                    prefabsToDestroy.Dispose();
+                }
+            }
+
+            // 5. 플레이어의 Box2D 물리 바디 파괴 (플레이어 엔티티는 씬 언로드 시 파괴되지만 물리 엔진 바디는 즉시 해제 필요)
+            if (SystemAPI.TryGetSingletonEntity<PlayerTag>(out var playerEntity))
+            {
+                if (em.HasComponent<PhysicsBodyHandle>(playerEntity))
+                {
+                    var bodyHandle = em.GetComponentData<PhysicsBodyHandle>(playerEntity);
+                    if (bodyHandle.Body.isValid)
+                    {
+                        bodyHandle.Body.Destroy();
+                        Debug.Log("[PlayerReturnSystem] 플레이어 물리 바디 파괴 완료.");
+                    }
+                }
+            }
+
+            Debug.Log("[PlayerReturnSystem] 휘발성 지하 월드 및 물리 리소스 정리 완료.");
         }
 
         private int GetItemValue(int itemType)
@@ -199,3 +317,4 @@ namespace CoreDriller.Player
         }
     }
 }
+
