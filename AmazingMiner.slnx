@@ -88,6 +88,7 @@
   <Project Path="Unity.2D.Sprite.Editor.csproj" />
   <Project Path="Unity.InternalAPIEditorBridge.013.csproj" />
   <Project Path="CodeStage.AFPSCounter.Editor.csproj" />
+  <Project Path="NuGetForUnity.csproj" />
   <Project Path="Unity.2D.PixelPerfect.Editor.csproj" />
   <Project Path="Unity.Multiplayer.Center.Common.csproj" />
   <Project Path="Unity.Physics.Editor.csproj" />
