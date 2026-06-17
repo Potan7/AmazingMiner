@@ -8,7 +8,8 @@ namespace CoreDriller.Motion
     public enum ColliderShapeType
     {
         Circle,
-        Capsule
+        Capsule,
+        Box
     }
 
     class PhysicsBodyAuthoring : MonoBehaviour
@@ -21,6 +22,7 @@ namespace CoreDriller.Motion
         public ColliderShapeType ColliderType;
         public CircleGeometry circleGeometry;
         public CapsuleGeometry capsuleGeometry;
+        public PolygonGeometry boxGeometry;
 
         void Reset()
         {
@@ -29,6 +31,7 @@ namespace CoreDriller.Motion
 
             circleGeometry = CircleGeometry.Create(0.5f); // 기본 반지름 0.5f로 설정
             capsuleGeometry = CapsuleGeometry.Create(new Vector2(0, 0.5f), new Vector2(0, -0.5f), 0.5f); // 기본 길이 1.0f, 반지름 0.5f로 설정
+            boxGeometry = PolygonGeometry.CreateBox(new Vector2(1.0f, 1.0f), 0f, new PhysicsTransform(Vector2.zero)); // 기본 1x1 박스로 설정
         }
 
         class PhysicsBodyAuthoringBaker : Baker<PhysicsBodyAuthoring>
@@ -52,6 +55,9 @@ namespace CoreDriller.Motion
                     case ColliderShapeType.Capsule:
                         comp.CapsuleGeometry = authoring.capsuleGeometry;
                         break;
+                    case ColliderShapeType.Box:
+                        comp.BoxGeometry = authoring.boxGeometry;
+                        break;
                 };
 
                 AddComponent(entity, comp);
@@ -66,6 +72,7 @@ namespace CoreDriller.Motion
         public ColliderShapeType ColliderType;
         public CircleGeometry CircleGeometry;
         public CapsuleGeometry CapsuleGeometry;
+        public PolygonGeometry BoxGeometry;
         public float2 InitialVelocity;
     }
 

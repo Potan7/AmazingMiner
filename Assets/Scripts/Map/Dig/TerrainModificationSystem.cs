@@ -1,9 +1,10 @@
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using CoreDriller.Map.Rendering;
 using Unity.Burst;
 using UnityEngine.LowLevelPhysics2D;
+using UnityEngine;
 
 namespace CoreDriller.Map.Dig
 {
@@ -182,7 +183,7 @@ namespace CoreDriller.Map.Dig
 
                                 // 2. 위치 및 크기 설정 (플레이어에게 잘 보이도록 Z축을 블록 앞인 -0.05f로 오버레이)
                                 float3 debrisPos = new float3(blockWorldX, blockWorldY, -0.05f);
-                                ECB.SetComponent(chunkIndex, debris, Unity.Transforms.LocalTransform.FromPositionRotationScale(debrisPos, quaternion.identity, BlockSize * 0.4f));
+                                ECB.SetComponent(chunkIndex, debris, Unity.Transforms.LocalTransform.FromPositionRotationScale(debrisPos, quaternion.identity, BlockSize * 0.7f));
 
                                 // 3. UVRect 연산 (공용 아틀라스 크롭 fallback일 때만 기존 컷아웃 설정 적용)
                                 // 전용 프리팹(isCustomPrefab == true)인 경우에는 DebrisMaterialInitializeSystem에서
@@ -212,6 +213,7 @@ namespace CoreDriller.Map.Dig
                                 PhysicsBodyDefinition bodyDef = PhysicsBodyDefinition.defaultDefinition;
                                 bodyDef.type = PhysicsBody.BodyType.Dynamic;
                                 bodyDef.gravityScale = 1.0f; // 중력 가속도
+                                bodyDef.constraints = PhysicsBody.BodyConstraints.Rotation;
 
                                 // 시드 기반 난수를 통해 위쪽 퍼짐 속도 생성 (e와 블록 위치 해싱)
                                 uint seed = (uint)(blockWorldX * 1000f + blockWorldY * 100000f + e * 100f + 1);
@@ -238,12 +240,13 @@ namespace CoreDriller.Map.Dig
                                     groupIndex = 0
                                 };
 
+                                float debrisSize = BlockSize * 0.7f * 0.7f;
                                 ECB.AddComponent(chunkIndex, debris, new CoreDriller.Motion.PhysicsBodyInformation
                                 {
                                     BodyDefinition = bodyDef,
                                     ShapeDefinition = shapeDef,
-                                    ColliderType = CoreDriller.Motion.ColliderShapeType.Circle,
-                                    CircleGeometry = CircleGeometry.Create(0.12f), // 작은 원형 충돌체 정의 (0.12f 크기)
+                                    ColliderType = CoreDriller.Motion.ColliderShapeType.Box,
+                                    BoxGeometry = PolygonGeometry.CreateBox(new Vector2(debrisSize, debrisSize), 0f, new PhysicsTransform(Vector2.zero)),
                                     InitialVelocity = new float2(vx, vy)
                                 });
                             }

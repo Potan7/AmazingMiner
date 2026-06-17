@@ -1,4 +1,4 @@
-﻿using Unity.Entities;
+using Unity.Entities;
 using Unity.Rendering;
 using Unity.Entities.Graphics;
 using Unity.Collections;
@@ -51,12 +51,12 @@ namespace CoreDriller.Map.Rendering
                 return;
             }
             var originRenderMeshArray = state.EntityManager.GetSharedComponentManaged<RenderMeshArray>(config.DebrisPrefab);
-            if (originRenderMeshArray.Meshes.Length == 0)
+            if (originRenderMeshArray.MeshReferences.Length == 0)
             {
                 Debug.LogWarning("[DebrisMaterialInitializeSystem] 공용 debrisPrefab에 등록된 메쉬가 없습니다.");
                 return;
             }
-            var prefabMesh = originRenderMeshArray.Meshes[0];
+            Mesh prefabMesh = originRenderMeshArray.MeshReferences[0].Value;
 
             // SafetyHandle 무효화(Disposed) 에러를 방지하기 위해 ECB 사용 (Error 2 해결)
             var ecb = new EntityCommandBuffer(Allocator.Temp);

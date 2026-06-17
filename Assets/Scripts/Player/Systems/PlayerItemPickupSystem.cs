@@ -1,4 +1,4 @@
-﻿using Unity.Burst;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -93,8 +93,8 @@ namespace CoreDriller.Player.ItemPickup
                     body.linearVelocity = math.lerp(body.linearVelocity, dir * 12.0f, dt * 15.0f);
                 }
 
-                // D. 획득 충돌 처리: 거리 0.4f 이내이며, 스폰된 지 0.15초 이상 지나 무작위 튕김이 진정된 시점
-                if (dist <= 0.4f && (elapsedTime - debrisComp.ValueRO.SpawnTime >= 0.15f) && hasSpace)
+                // D. 획득 충돌 처리: 거리 0.7f 이내이며, 스폰된 지 0.15초 이상 지나 무작위 튕김이 진정된 시점
+                if (dist <= 0.7f && (elapsedTime - debrisComp.ValueRO.SpawnTime >= 0.15f) && hasSpace)
                 {
                     // 1. 인벤토리 버퍼에 누적 반영
                     AddToInventory(ref inventory, itemType, slotSize);

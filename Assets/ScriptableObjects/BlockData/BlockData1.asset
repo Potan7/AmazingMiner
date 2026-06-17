@@ -17,15 +17,14 @@ MonoBehaviour:
     Name: Bedrock
     Description: 
     Icon: {fileID: 0}
-    TerrainSprite: {fileID: 0}
+    TerrainSprite: {fileID: -1298184951, guid: a8b050deb5548b34989a2b1f561b2007, type: 3}
     TerrainSprites: []
-    AtlasIndex: 2
     DropItemID: 0
   - BlockType: 2
     Name: Dirt
     Description: 
     Icon: {fileID: 0}
-    TerrainSprite: {fileID: -3126159786139440954, guid: 2b1c8f157034bfa4fadaff1b41726297, type: 3}
+    TerrainSprite: {fileID: -1305164013205970629, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
     TerrainSprites:
     - {fileID: -1305164013205970629, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
     - {fileID: 391664060, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
@@ -36,47 +35,48 @@ MonoBehaviour:
     - {fileID: 766641482, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
     - {fileID: 701011900, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
     - {fileID: 665000650, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
-    AtlasIndex: 1
+    - {fileID: 386973855, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
+    - {fileID: -516519495, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
+    - {fileID: 2024051841, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
+    - {fileID: 1327032165, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
+    - {fileID: -1817654640, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
+    - {fileID: -882798832, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
+    - {fileID: -702421442, guid: 604ca539b139b9e4a93fdd2953463743, type: 3}
     DropItemID: 0
   - BlockType: 3
     Name: Stone
     Description: 
     Icon: {fileID: 0}
-    TerrainSprite: {fileID: 0}
+    TerrainSprite: {fileID: -625028828, guid: a8b050deb5548b34989a2b1f561b2007, type: 3}
     TerrainSprites: []
-    AtlasIndex: 3
     DropItemID: 0
   - BlockType: 1001
     Name: Coal
     Description: 
     Icon: {fileID: 0}
-    TerrainSprite: {fileID: 0}
+    TerrainSprite: {fileID: 506351838, guid: a8b050deb5548b34989a2b1f561b2007, type: 3}
     TerrainSprites: []
-    AtlasIndex: 2
     DropItemID: 0
   - BlockType: 1002
     Name: Iron
     Description: 
     Icon: {fileID: 0}
-    TerrainSprite: {fileID: 0}
+    TerrainSprite: {fileID: -433059782, guid: a8b050deb5548b34989a2b1f561b2007, type: 3}
     TerrainSprites: []
-    AtlasIndex: 4
     DropItemID: 0
   - BlockType: 1003
     Name: Copper
     Description: 
     Icon: {fileID: 0}
-    TerrainSprite: {fileID: 0}
+    TerrainSprite: {fileID: -749818994, guid: a8b050deb5548b34989a2b1f561b2007, type: 3}
     TerrainSprites: []
-    AtlasIndex: 5
     DropItemID: 0
   - BlockType: 1004
     Name: Gold
     Description: 
     Icon: {fileID: 0}
-    TerrainSprite: {fileID: 0}
+    TerrainSprite: {fileID: -1221002117, guid: a8b050deb5548b34989a2b1f561b2007, type: 3}
     TerrainSprites: []
-    AtlasIndex: 6
     DropItemID: 0
   BlockSpecs:
   - BlockType: 1

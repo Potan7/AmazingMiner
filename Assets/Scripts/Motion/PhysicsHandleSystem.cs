@@ -35,6 +35,9 @@ namespace CoreDriller.Motion
                     case ColliderShapeType.Capsule:
                         body.CreateShape(bodyInfo.ValueRO.CapsuleGeometry, bodyInfo.ValueRO.ShapeDefinition);
                         break;
+                    case ColliderShapeType.Box:
+                        body.CreateShape(bodyInfo.ValueRO.BoxGeometry, bodyInfo.ValueRO.ShapeDefinition);
+                        break;
                 }
                 body.position = localTransform.ValueRO.Position.xy;
 
