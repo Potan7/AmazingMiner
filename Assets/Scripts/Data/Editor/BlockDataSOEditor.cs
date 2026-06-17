@@ -70,6 +70,7 @@ public class BlockDataSOEditor : Editor
             SerializedProperty nameProp = visualElement.FindPropertyRelative("Name");
             SerializedProperty descProp = visualElement.FindPropertyRelative("Description");
             SerializedProperty iconProp = visualElement.FindPropertyRelative("Icon");
+            SerializedProperty terrainSpriteProp = visualElement.FindPropertyRelative("TerrainSprite");
             SerializedProperty atlasIdxProp = visualElement.FindPropertyRelative("AtlasIndex");
 
             SerializedProperty idSpec = specElement.FindPropertyRelative("BlockType");
@@ -148,7 +149,8 @@ public class BlockDataSOEditor : Editor
                 EditorGUILayout.LabelField("Description");
                 descProp.stringValue = EditorGUILayout.TextArea(descProp.stringValue, GUILayout.Height(40));
 
-                EditorGUILayout.PropertyField(atlasIdxProp, new GUIContent("Atlas Index (0-15)"));
+                EditorGUILayout.PropertyField(terrainSpriteProp, new GUIContent("Terrain Sprite"));
+                EditorGUILayout.PropertyField(atlasIdxProp, new GUIContent("Atlas Index (Fallback)"));
 
                 EditorGUILayout.Space(5);
                 EditorGUILayout.LabelField("Specs (Logic)", EditorStyles.boldLabel);
@@ -221,6 +223,7 @@ public class BlockDataSOEditor : Editor
             newVisual.FindPropertyRelative("Name").stringValue = "New Block";
             newVisual.FindPropertyRelative("Description").stringValue = "";
             newVisual.FindPropertyRelative("Icon").objectReferenceValue = null;
+            newVisual.FindPropertyRelative("TerrainSprite").objectReferenceValue = null;
             newVisual.FindPropertyRelative("AtlasIndex").intValue = 0;
 
             newSpec.FindPropertyRelative("BlockType").intValue = nextID;

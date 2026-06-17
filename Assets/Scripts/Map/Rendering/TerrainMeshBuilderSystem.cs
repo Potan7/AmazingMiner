@@ -61,18 +61,11 @@ namespace CoreDriller.Map.Rendering
                     if (blockType == BlockTypes.Empty)
                         continue;
 
-                    // UV 계산 (블록 DB에서 AtlasIndex 조회)
-                    int uvIdx = GetAtlasIndex(blockType); 
+                    // UV 계산 (블록 DB에서 UVRect 조회)
+                    float4 uvRect = GetBlockUVRect(blockType); 
 
-                    int xIdx = uvIdx % (int)atlasSize;
-                    int yIdx = uvIdx / (int)atlasSize;
-
-                    float uvX = xIdx * uvStep;
-                    // 좌측 상단이 0번이므로 Y축을 반전시킵니다.
-                    float uvY = 1.0f - ((yIdx + 1) * uvStep); 
-
-                    float2 uvMin = new float2(uvX, uvY);
-                    float2 uvMax = new float2(uvX + uvStep, uvY + uvStep);
+                    float2 uvMin = uvRect.zw; // OffsetX, OffsetY
+                    float2 uvMax = uvRect.zw + uvRect.xy; // Offset + Scale
 
                     float px = x * CellSize;
                     float py = y * CellSize;
@@ -114,17 +107,17 @@ namespace CoreDriller.Map.Rendering
             triangles.Add(new ChunkTriangle { Value = startIndex + 3 });
         }
 
-        private int GetAtlasIndex(int blockType)
+        private float4 GetBlockUVRect(int blockType)
         {
             ref var blocks = ref BlockDB.Value.Blocks;
             for (int i = 0; i < blocks.Length; i++)
             {
                 if (blocks[i].BlockType == blockType)
                 {
-                    return blocks[i].AtlasIndex;
+                    return blocks[i].UVRect;
                 }
             }
-            return 0; // Default fallback
+            return new float4(1f, 1f, 0f, 0f); // Default fallback (Full texture)
         }
     }
 }

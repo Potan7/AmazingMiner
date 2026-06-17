@@ -27,6 +27,7 @@ namespace CoreDriller.Map
         public float MiningTime;
         public float MaxHP;
         public int AtlasIndex;
+        public float4 UVRect; // 추가된 동적 스프라이트 UV 영역
         public int DropItemID;
     }
 

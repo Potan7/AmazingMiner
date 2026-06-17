@@ -8,6 +8,7 @@ public class BlockVisualData
     [TextArea(2, 5)]
     public string Description;
     public Sprite Icon;
+    public Sprite TerrainSprite; // 지형 타일로 렌더링될 스프라이트 에셋
     public int AtlasIndex;
     public int DropItemID; // 채굴 시 드롭될 아이템 ID (0이면 드롭 없음)
 }

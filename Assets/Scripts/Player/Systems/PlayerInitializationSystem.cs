@@ -1,4 +1,4 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using CoreDriller.Player.StatSystem;
 using UnityEngine;
 
@@ -66,7 +66,7 @@ namespace CoreDriller.Player
                 }
 
                 PlayerManager.Instance.SetPlayerEntity(entity);
-                Debug.Log($"[PlayerInitializationSystem] Deferred Initialization for Player Entity: {entity} with stats.");
+                //Debug.Log($"[PlayerInitializationSystem] Deferred Initialization for Player Entity: {entity} with stats.");
             }
         }
     }

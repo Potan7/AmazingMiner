@@ -1,4 +1,4 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Rendering;
 using Unity.Entities.Graphics;
 using Unity.Collections;
@@ -151,7 +151,7 @@ namespace CoreDriller.Map.Rendering
                     DebrisPrefab = customDebrisEntity
                 });
 
-                Debug.Log($"[DebrisMaterialInitializeSystem] Automatically generated custom debris prefab for ItemID: {itemID} using Sprite '{sprite.name}'");
+                //Debug.Log($"[DebrisMaterialInitializeSystem] Automatically generated custom debris prefab for ItemID: {itemID} using Sprite '{sprite.name}'");
             }
 
             // 예약된 커맨드 버퍼 실행 및 메모리 정리

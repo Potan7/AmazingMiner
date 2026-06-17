@@ -17,42 +17,49 @@ MonoBehaviour:
     Name: Bedrock
     Description: 
     Icon: {fileID: 0}
+    TerrainSprite: {fileID: 0}
     AtlasIndex: 2
     DropItemID: 0
   - BlockType: 2
     Name: Dirt
     Description: 
     Icon: {fileID: 0}
+    TerrainSprite: {fileID: -3126159786139440954, guid: 2b1c8f157034bfa4fadaff1b41726297, type: 3}
     AtlasIndex: 1
     DropItemID: 0
   - BlockType: 3
     Name: Stone
     Description: 
     Icon: {fileID: 0}
+    TerrainSprite: {fileID: 0}
     AtlasIndex: 3
     DropItemID: 0
   - BlockType: 1001
     Name: Coal
     Description: 
     Icon: {fileID: 0}
+    TerrainSprite: {fileID: 0}
     AtlasIndex: 2
     DropItemID: 0
   - BlockType: 1002
     Name: Iron
     Description: 
     Icon: {fileID: 0}
+    TerrainSprite: {fileID: 0}
     AtlasIndex: 4
     DropItemID: 0
   - BlockType: 1003
     Name: Copper
     Description: 
     Icon: {fileID: 0}
+    TerrainSprite: {fileID: 0}
     AtlasIndex: 5
     DropItemID: 0
   - BlockType: 1004
     Name: Gold
     Description: 
     Icon: {fileID: 0}
+    TerrainSprite: {fileID: 0}
     AtlasIndex: 6
     DropItemID: 0
   BlockSpecs:

@@ -28,7 +28,7 @@ MonoBehaviour:
   - ItemID: 1003
     Name: Copper
     Description: 
-    Icon: {fileID: 0}
+    Icon: {fileID: 21300000, guid: e7656ed9cc2ba2c41ab7a4f92f545e5a, type: 3}
   - ItemID: 1004
     Name: Gold
     Description: "\uAE08"

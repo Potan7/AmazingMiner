@@ -6,6 +6,7 @@ using UnityEngine.AddressableAssets;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Collections;
+using Unity.Mathematics;
 using CoreDriller.Map;
 
 namespace CoreDriller
@@ -165,16 +166,24 @@ namespace CoreDriller
             using (var builder = new BlobBuilder(Allocator.Temp))
             {
                 ref BlockDatabaseBlob root = ref builder.ConstructRoot<BlockDatabaseBlob>();
-
                 BlobBuilderArray<BlockBlobInfo> array = builder.Allocate(ref root.Blocks, blockSpecs.Count);
+                Texture2D terrainTexture = null;
 
                 for (int i = 0; i < blockSpecs.Count; i++)
                 {
                     var spec = blockSpecs[i];
                     int atlasIndex = 0;
+                    float4 uvRect = new float4(1f, 1f, 0f, 0f); // Default full scale
+
                     if (visualDatas.TryGetValue(spec.BlockType, out var visual))
                     {
                         atlasIndex = visual.AtlasIndex;
+                        uvRect = CalculateBlockUV(visual.TerrainSprite, atlasIndex);
+
+                        if (visual.TerrainSprite != null && visual.TerrainSprite.texture != null)
+                        {
+                            terrainTexture = visual.TerrainSprite.texture;
+                        }
                     }
 
                     array[i] = new BlockBlobInfo
@@ -184,8 +193,19 @@ namespace CoreDriller
                         MiningTime = spec.MiningTime,
                         MaxHP = spec.MaxHP,
                         AtlasIndex = atlasIndex,
+                        UVRect = uvRect,
                         DropItemID = spec.DropItemID
                     };
+                }
+
+                // 동적으로 패킹된 아틀라스/스프라이트 시트 텍스처를 지형 머티리얼에 자동 매핑
+                if (terrainTexture != null && TerrainMaterial != null)
+                {
+                    TerrainMaterial.mainTexture = terrainTexture;
+                    if (TerrainMaterial.HasProperty("_BaseMap"))
+                    {
+                        TerrainMaterial.SetTexture("_BaseMap", terrainTexture);
+                    }
                 }
 
                 BlobAssetReference<BlockDatabaseBlob> blobRef = builder.CreateBlobAssetReference<BlockDatabaseBlob>(Allocator.Persistent);
@@ -193,6 +213,38 @@ namespace CoreDriller
                 Entity blockDBEntity = entityManager.CreateEntity();
                 entityManager.AddComponentData(blockDBEntity, new BlockDatabaseReference { Reference = blobRef });
             }
+        }
+
+        public static float4 CalculateBlockUV(Sprite sprite, int atlasIndex)
+        {
+            if (sprite != null)
+            {
+                Texture2D texture = sprite.texture;
+                if (texture != null)
+                {
+                    // sprite.textureRect 활용 (런타임 패킹 아틀라스 지원)
+                    Rect texRect = sprite.textureRect;
+                    float texWidth = texture.width;
+                    float texHeight = texture.height;
+
+                    return new float4(
+                        texRect.width / texWidth,
+                        texRect.height / texHeight,
+                        texRect.x / texWidth,
+                        texRect.y / texHeight
+                    );
+                }
+            }
+
+            // 스프라이트가 없을 때 기존의 4x4 아틀라스 인덱스 기반 폴백 계산
+            const float atlasSize = 4.0f;
+            const float uvStep = 1.0f / atlasSize; // 0.25f
+            int xIdx = atlasIndex % (int)atlasSize;
+            int yIdx = atlasIndex / (int)atlasSize;
+            float offsetX = xIdx * uvStep;
+            float offsetY = 1.0f - ((yIdx + 1) * uvStep);
+
+            return new float4(uvStep, uvStep, offsetX, offsetY);
         }
     }
 }
