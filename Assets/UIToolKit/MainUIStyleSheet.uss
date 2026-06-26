@@ -1,0 +1,126 @@
+/* 공통 */
+.fullscreen-canvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    font-size: 14px;
+    color: #FFFFFF;
+}
+
+/* 숨김 속성 */
+.hidden {
+    display: none;
+}
+
+/* 0. HUD 스타일 */
+.hud-panel {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    flex-direction: row;
+    padding: 10px;
+    background-color: rgba(20, 20, 20, 0.85);
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.hud-item {
+    flex-direction: row;
+    align-items: center;
+    margin-right: 20px;
+}
+
+.hud-icon {
+    font-size: 18px;
+    margin-right: 5px;
+}
+
+.hud-text {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* 1. 상호작용 프롬프트 스타일 */
+.prompt-panel {
+    position: absolute;
+    bottom: 120px;
+    align-self: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-width: 1.5px;
+    border-color: #FFA500;
+    border-radius: 6px;
+    padding: 8px 16px;
+}
+
+.prompt-text {
+    font-size: 16px;
+    color: #FFA500;
+    font-weight: bold;
+    text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
+}
+
+/* 2. 모달 오버레이 스타일 */
+.modal-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.65);
+    justify-content: center;
+    align-items: center;
+}
+
+/* 5. 공장 전용 UI 오버레이 스타일 */
+.factory-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* 공통 팝업창 스타일 */
+.popup-box {
+    width: 500px;
+    height: 400px;
+    background-color: rgba(30, 30, 30, 0.95);
+    border-width: 2px;
+    border-color: #444444;
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.popup-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom-width: 1px;
+    border-color: #444444;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.popup-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #00FFCC;
+}
+
+.popup-close-btn {
+    width: 30px;
+    height: 30px;
+    background-color: #D9534F;
+    border-radius: 6px;
+    border-width: 0px;
+    color: #FFFFFF;
+    font-weight: bold;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-close-btn:hover {
+    background-color: #C9302C;
+}
+
+.popup-body {
+    flex-grow: 1;
+}

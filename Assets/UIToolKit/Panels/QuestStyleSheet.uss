@@ -1,0 +1,44 @@
+.quest-list {
+    flex-grow: 1;
+}
+
+.quest-item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(45, 45, 45, 0.7);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    border-width: 1px;
+    border-color: #3a3a3a;
+}
+
+.quest-info {
+    flex-grow: 1;
+}
+
+.quest-name {
+    font-size: 15px;
+    font-weight: bold;
+    color: #FFFFFF;
+    margin-bottom: 2px;
+}
+
+.quest-reward {
+    font-size: 12px;
+    color: #00FFCC;
+}
+
+.btn-accept {
+    background-color: #28A745;
+    border-radius: 4px;
+    border-width: 0px;
+    color: #FFFFFF;
+    padding: 6px 12px;
+    font-weight: bold;
+}
+
+.btn-accept:hover {
+    background-color: #218838;
+}

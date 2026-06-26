@@ -80,10 +80,12 @@ namespace CoreDriller.Map.Rendering
             {
                 int itemID = itemSpecs[i].ItemID;
                 var visualData = DataManager.Instance.GetItemVisualData(itemID);
-                if (visualData == null || visualData.Icon == null)
+                if (visualData == null)
                     continue;
 
-                Sprite sprite = visualData.Icon;
+                Sprite sprite = visualData.DropSprite != null ? visualData.DropSprite : visualData.Icon;
+                if (sprite == null)
+                    continue;
                 Texture2D texture = sprite.texture;
 
                 if (texture == null)

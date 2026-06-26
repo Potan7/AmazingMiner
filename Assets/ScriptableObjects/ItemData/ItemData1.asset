@@ -17,26 +17,32 @@ MonoBehaviour:
     Name: Dirt
     Description: "\uD759"
     Icon: {fileID: 21300000, guid: ec0b356c0e78f1a49960491e0f5da728, type: 3}
+    DropSprite: {fileID: 21300000, guid: 1cbc59646f247b74c88a63e93a7b8fb7, type: 3}
   - ItemID: 1001
     Name: Coal
     Description: "\uC11D\uD0C4"
     Icon: {fileID: 21300000, guid: 4229ae6ac945361469af1590afe08ece, type: 3}
+    DropSprite: {fileID: 21300000, guid: b303c883a2a4b9d4c957caa810864546, type: 3}
   - ItemID: 1002
     Name: Iron
     Description: "\uCCA0"
     Icon: {fileID: 21300000, guid: 845705f26ff11a34ca2fe2c14b1919e8, type: 3}
+    DropSprite: {fileID: 21300000, guid: 3dfd1ec2ec1d34340abef57da8f2698b, type: 3}
   - ItemID: 1003
     Name: Copper
     Description: 
     Icon: {fileID: 21300000, guid: e7656ed9cc2ba2c41ab7a4f92f545e5a, type: 3}
+    DropSprite: {fileID: 21300000, guid: 50bf598097a304a48b4f7f83ef972c88, type: 3}
   - ItemID: 1004
     Name: Gold
     Description: "\uAE08"
     Icon: {fileID: 21300000, guid: f444701e2795ac343ad2c607da38c62b, type: 3}
+    DropSprite: {fileID: 21300000, guid: 3960c328ea5c283428cfab22fdd80e8f, type: 3}
   - ItemID: 3
     Name: Stone
     Description: "\uB3CC"
     Icon: {fileID: 21300000, guid: b542b8c87dfdbe44eae00f823e41ec25, type: 3}
+    DropSprite: {fileID: 21300000, guid: e7d358ae0bdf1d54caeea0e69603794b, type: 3}
   ItemSpecs:
   - ItemID: 2
     Value: 1

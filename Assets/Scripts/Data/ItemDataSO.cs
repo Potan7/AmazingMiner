@@ -1,4 +1,4 @@
-﻿using Unity.Entities;
+using Unity.Entities;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "ItemDataSO", menuName = "ScriptableObjects/ItemDataSO")]
@@ -18,6 +18,7 @@ public class ItemVisualData
     public string Description;
 
     public Sprite Icon;
+    public Sprite DropSprite;
 }
 
 [System.Serializable]

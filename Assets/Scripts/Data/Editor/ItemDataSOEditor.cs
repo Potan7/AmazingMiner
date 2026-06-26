@@ -143,8 +143,12 @@ public class ItemDataSOEditor : Editor
 
                 EditorGUILayout.EndVertical();
 
-                // Right side: Icon Preview & Selector
+                // Right side: Icon Preview & Selector and DropSprite Preview & Selector
+                EditorGUILayout.BeginHorizontal(GUILayout.Width(190));
+                
+                // 1. Icon (Inventory)
                 EditorGUILayout.BeginVertical(GUILayout.Width(90));
+                EditorGUILayout.LabelField("Inventory Icon", EditorStyles.miniLabel, GUILayout.Width(90));
                 
                 Sprite sprite = (Sprite)iconProp.objectReferenceValue;
                 Texture2D texture = null;
@@ -173,6 +177,43 @@ public class ItemDataSOEditor : Editor
                 iconProp.objectReferenceValue = EditorGUI.ObjectField(objectFieldRect, iconProp.objectReferenceValue, typeof(Sprite), false);
 
                 EditorGUILayout.EndVertical();
+
+                EditorGUILayout.Space(5);
+
+                // 2. DropSprite
+                EditorGUILayout.BeginVertical(GUILayout.Width(90));
+                EditorGUILayout.LabelField("Drop Sprite", EditorStyles.miniLabel, GUILayout.Width(90));
+                
+                SerializedProperty dropSpriteProp = visualElement.FindPropertyRelative("DropSprite");
+                Sprite dropSprite = (Sprite)dropSpriteProp.objectReferenceValue;
+                Texture2D dropTexture = null;
+                if (dropSprite != null)
+                {
+                    dropTexture = AssetPreview.GetAssetPreview(dropSprite);
+                }
+                
+                // Draw DropSprite preview
+                Rect dropRect = GUILayoutUtility.GetRect(70, 70, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false));
+                dropRect.x += 10; // Center offset a bit
+                if (dropTexture != null)
+                {
+                    GUI.DrawTexture(dropRect, dropTexture, ScaleMode.ScaleToFit);
+                }
+                else
+                {
+                    GUI.Box(dropRect, "No Drop Sprite");
+                }
+                
+                EditorGUILayout.Space(2);
+                
+                // Object picker below preview
+                Rect dropObjectFieldRect = GUILayoutUtility.GetRect(85, 18, GUILayout.ExpandWidth(false));
+                dropObjectFieldRect.x += 2;
+                dropSpriteProp.objectReferenceValue = EditorGUI.ObjectField(dropObjectFieldRect, dropSpriteProp.objectReferenceValue, typeof(Sprite), false);
+
+                EditorGUILayout.EndVertical();
+
+                EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.EndHorizontal();
                 
@@ -211,6 +252,7 @@ public class ItemDataSOEditor : Editor
             newVisual.FindPropertyRelative("Name").stringValue = "New Item";
             newVisual.FindPropertyRelative("Description").stringValue = "";
             newVisual.FindPropertyRelative("Icon").objectReferenceValue = null;
+            newVisual.FindPropertyRelative("DropSprite").objectReferenceValue = null;
 
             newSpec.FindPropertyRelative("ItemID").intValue = nextID;
             newSpec.FindPropertyRelative("Value").intValue = 0;

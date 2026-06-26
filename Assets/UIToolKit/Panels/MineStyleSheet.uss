@@ -1,0 +1,71 @@
+.mine-body-layout {
+    justify-content: space-between;
+}
+
+.warning-text {
+    font-size: 13px;
+    color: #FF5555;
+    background-color: rgba(255, 85, 85, 0.1);
+    border-width: 1px;
+    border-color: rgba(255, 85, 85, 0.3);
+    border-radius: 6px;
+    padding: 10px;
+    white-space: normal;
+}
+
+.mine-difficulty-selection {
+    margin-top: 15px;
+}
+
+.diff-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.diff-buttons {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.btn-diff {
+    flex-grow: 1;
+    background-color: #333333;
+    border-width: 1.5px;
+    border-color: #555555;
+    border-radius: 6px;
+    color: #CCCCCC;
+    padding: 8px 0px;
+    margin: 0px 4px;
+}
+
+.btn-diff:hover {
+    border-color: #00FFCC;
+    color: #FFFFFF;
+}
+
+.btn-diff.selected {
+    border-color: #FFA500;
+    color: #FFA500;
+    background-color: rgba(255, 165, 0, 0.1);
+}
+
+.mine-actions {
+    margin-top: 20px;
+    align-items: center;
+}
+
+.btn-enter {
+    width: 200px;
+    background-color: #FF8C00;
+    border-width: 0px;
+    border-radius: 6px;
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 0px;
+}
+
+.btn-enter:hover {
+    background-color: #FF7F00;
+}

@@ -62,7 +62,7 @@ namespace CoreDriller.Player
             }
 
             // 스탯 업데이트
-            if (PlayerManager.Instance.StatIsDirty)
+            if (PlayerManager.Instance.statIsDirty)
             {
                 if (SystemAPI.HasComponent<MovementStats>(playerEntity))
                 {
@@ -71,7 +71,7 @@ namespace CoreDriller.Player
                     movementStats.ValueRW.JumpForce = currentStats.JetpackThrust;
                 }
 
-                PlayerManager.Instance.StatIsDirty = false;
+                PlayerManager.Instance.statIsDirty = false;
             }
         }
     }

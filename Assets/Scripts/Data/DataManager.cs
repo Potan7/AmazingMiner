@@ -8,6 +8,7 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using CoreDriller.Map;
+using Data;
 
 namespace CoreDriller
 {

@@ -1,4 +1,4 @@
-﻿using Unity.Burst;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -96,9 +96,14 @@ namespace CoreDriller.Player
             // 2.4. 휘발성 엔티티 및 Box2D 물리 리소스 정리 (메모리 누수 방지)
             CleanupPhysicsAndVolatileEntities(ref state);
 
-            // 2.5. HomeScene으로 씬 전환
+            // 2.5. 귀환 직전 — ECS 현재 스탯을 PlayerManager(DontDestroyOnLoad)에 저장
+            //      (씬 언로드 시 Entity가 파괴되기 전에 반드시 호출)
+            PlayerManager.Instance?.SaveStatsFromEntity();
+
+            // 2.6. HomeScene으로 씬 전환
             Debug.Log($"[PlayerReturnSystem] 귀환 시퀀스 완료 (강제여부: {isForced}). HomeScene으로 이동합니다.");
             SceneManager.LoadScene("HomeScene");
+
         }
 
         private void ApplyInventoryPenalty(ref SystemState state, Entity statEntity)

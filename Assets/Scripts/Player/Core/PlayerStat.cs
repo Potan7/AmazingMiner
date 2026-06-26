@@ -1,5 +1,5 @@
-﻿
 using UnityEngine;
+using System.Collections.Generic;
 
 [System.Serializable]
 public class PlayerStat
@@ -29,6 +29,15 @@ public class PlayerStat
     public float ItemPickupRange;
     public float PenaltyReductionRate;
 
+    // --- 런타임 상태값 (씬 전환 간 유지되는 휘발성 플레이 데이터) ---
+    // 지하 진입 시 ECS로 업로드, 귀환 시 ECS에서 다시 저장됨.
+    [Header("Runtime State (씬 전환 간 유지)")]
+    public float CurrentHealth; // 현재 체력
+    public float CurrentFuel;   // 현재 연료
+
+    // 인벤토리: (ItemType → Count) 형태로 저장
+    public List<(int ItemType, int Count)> InventorySnapshot = new();
+
     public PlayerStat(PlayerStatSO statSO)
     {
         MaxHealth = statSO.MaxHealth;
@@ -46,5 +55,9 @@ public class PlayerStat
         InventorySlotCount = statSO.InventorySlotCount;
         ItemPickupRange = statSO.ItemPickupRange;
         PenaltyReductionRate = statSO.PenaltyReductionRate;
+
+        // 최초 진입 시 런타임 상태 초기화
+        CurrentHealth = MaxHealth;
+        CurrentFuel   = MaxFuel;
     }
 }

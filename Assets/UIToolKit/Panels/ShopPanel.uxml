@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ui="UnityEngine.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+>
+    <!-- 상점 컨테이너 -->
+    <ui:VisualElement name="shop-box" class="popup-box">
+        <Style src="ShopStyleSheet.uss" />
+
+
+        <ui:VisualElement class="popup-header">
+            <ui:Label text="상점 (Shop)" class="popup-title" />
+            <ui:Button name="btn-close" text="X" class="popup-close-btn" />
+        </ui:VisualElement>
+        <ui:VisualElement class="popup-body">
+            <ui:Label text="구매 가능한 아이템 목록" class="shop-subtitle" />
+            <ui:ScrollView class="shop-list">
+                <ui:VisualElement class="shop-item">
+                    <ui:Label text="🛠️ 기본 드릴 머리" class="item-name" />
+                    <ui:Button name="btn-buy-drill" text="100 G 구매" class="btn-buy" />
+                </ui:VisualElement>
+                <ui:VisualElement class="shop-item">
+                    <ui:Label text="⛽ 보조 연료 탱크" class="item-name" />
+                    <ui:Button name="btn-buy-fuel" text="150 G 구매" class="btn-buy" />
+                </ui:VisualElement>
+            </ui:ScrollView>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

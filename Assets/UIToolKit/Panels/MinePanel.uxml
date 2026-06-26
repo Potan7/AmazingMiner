@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ui="UnityEngine.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+>
+    <ui:VisualElement name="mine-box" class="popup-box">
+        <Style src="MineStyleSheet.uss" />
+
+
+        <ui:VisualElement class="popup-header">
+            <ui:Label text="지하 광산 (Mine Entrance)" class="popup-title" />
+            <ui:Button name="btn-close" text="X" class="popup-close-btn" />
+        </ui:VisualElement>
+        <ui:VisualElement class="popup-body mine-body-layout">
+            <ui:Label text="⚠️ 지하 탐사는 위험이 따릅니다. 사망 시 수집한 모든 비고정 자원을 잃습니다." class="warning-text" />
+            <ui:VisualElement class="mine-difficulty-selection">
+                <ui:Label text="난이도 선택:" class="diff-title" />
+                <ui:VisualElement class="diff-buttons">
+                    <ui:Button name="btn-diff-normal" text="일반 구역 (Level 1~10)" class="btn-diff selected" />
+                    <ui:Button name="btn-diff-hard" text="심층 구역 (Level 11~30)" class="btn-diff" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="mine-actions">
+                <ui:Button name="btn-enter-mine" text="광산 진입하기" class="btn-enter" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

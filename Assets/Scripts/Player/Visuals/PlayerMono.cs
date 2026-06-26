@@ -10,11 +10,19 @@ using Cysharp.Threading.Tasks;
 
 public class PlayerMono : MonoBehaviour
 {
+    public static readonly int IsGroundedHash = Animator.StringToHash("IsGrounded");
+    public static readonly int IsDrillingHash = Animator.StringToHash("IsDrilling");
+    public static readonly int IsBoostingHash = Animator.StringToHash("IsBoosting");
+    public static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
+
     private Entity PlayerEntity => PlayerManager.Instance.PlayerEntity;
 
     public CinemachineCamera mainCam;
     public Animator playerAnimator;
     public bool isGrounded;
+
+    public int maxCameraLens = 20;
+    public int minCameraLens = 5;
 
     void Update()
     {
@@ -50,10 +58,10 @@ public class PlayerMono : MonoBehaviour
         // Animator 파라미터 업데이트
         if (playerAnimator != null)
         {
-            playerAnimator.SetBool("IsMoving", isMoving);
-            playerAnimator.SetBool("IsBoosting", isBoosting);
-            playerAnimator.SetBool("IsDrilling", isDrilling);
-            playerAnimator.SetBool("IsGrounded", isGrounded);
+            playerAnimator.SetBool(IsMovingHash, isMoving);
+            playerAnimator.SetBool(IsBoostingHash, isBoosting);
+            playerAnimator.SetBool(IsDrillingHash, isDrilling);
+            playerAnimator.SetBool(IsGroundedHash, isGrounded);
         }
 
         // 이동 방향에 따라 localScale.x 플립
@@ -78,15 +86,20 @@ public class PlayerMono : MonoBehaviour
     void Start()
     {
         // Return 키 입력 이벤트 구독
-        if (PlayerManager.Instance != null)
+        var pm = PlayerManager.Instance;
+        if (pm != null)
         {
-            PlayerManager.Instance.OnReturnKeyPerformed
-                .Subscribe(_ => OnReturnKey())
+            pm.OnReturnKeyPerformed
+                .Subscribe(OnReturnKey)
+                .AddTo(destroyCancellationToken);
+
+            pm.OnMouseWheelScrolled
+                .Subscribe(OnWheelScrolled)
                 .AddTo(destroyCancellationToken);
         }
     }
 
-    void OnReturnKey()
+    void OnReturnKey(Unit _)
     {
         if (PlayerEntity != Entity.Null)
         {
@@ -96,5 +109,10 @@ public class PlayerMono : MonoBehaviour
                 entityManager.AddComponent<NormalReturnTag>(PlayerEntity);
             }
         }
+    }
+
+    void OnWheelScrolled(Vector2 move)
+    {
+        mainCam.Lens.OrthographicSize = Mathf.Clamp(mainCam.Lens.OrthographicSize - move.y, minCameraLens, maxCameraLens);
     }
 }

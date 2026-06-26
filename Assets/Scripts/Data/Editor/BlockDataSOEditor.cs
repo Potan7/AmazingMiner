@@ -1,3 +1,4 @@
+using Data;
 using UnityEditor;
 using UnityEngine;
 
@@ -320,6 +321,7 @@ public class BlockDataSOEditor : Editor
                 newItemVisual.FindPropertyRelative("Name").stringValue = blockName;
                 newItemVisual.FindPropertyRelative("Description").stringValue = blockDesc;
                 newItemVisual.FindPropertyRelative("Icon").objectReferenceValue = blockIcon;
+                newItemVisual.FindPropertyRelative("DropSprite").objectReferenceValue = blockIcon;
 
                 newItemSpec.FindPropertyRelative("ItemID").intValue = dropItemID;
                 newItemSpec.FindPropertyRelative("Value").intValue = 0; // Default value

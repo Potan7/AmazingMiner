@@ -1,5 +1,6 @@
-﻿using CoreDriller.Player.StatSystem;
+using CoreDriller.Player.StatSystem;
 using Cysharp.Threading.Tasks;
+using Potan.CoreUtils;
 using R3;
 using Unity.Entities;
 using UnityEngine;
@@ -14,12 +15,12 @@ public class InventoryManager : MonoBehaviour
     private void Awake()
     {
         PlayerUIEvents.InventoryChanged
-            .Subscribe(_ => OnInventoryChanged())
+            .Subscribe( this, (_, t) => t.OnInventoryChanged())
             .AddTo(destroyCancellationToken);
 
-        // event Action → R3 Subject 구독 (자동 해제)
+        // event Action → R3 Subject 구독
         PlayerManager.Instance.OnInventoryKeyPerformed
-            .Subscribe(_ => SetInventoryPanel(!isInventoryPanelActive))
+            .Subscribe(this, (_, t) => t.SetInventoryPanel(!isInventoryPanelActive))
             .AddTo(destroyCancellationToken);
 
         if (inventoryPanel.activeSelf) { SetInventoryPanel(false); }
@@ -32,13 +33,24 @@ public class InventoryManager : MonoBehaviour
         inventoryPanel.SetActive(isActive);
     }
 
-    void OnInventoryChanged()
+    private void OnInventoryChanged()
     {
+        if (World.DefaultGameObjectInjectionWorld == null || !World.DefaultGameObjectInjectionWorld.IsCreated)
+        {
+            return;
+        }
+
         var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        var playerEntity = PlayerManager.Instance.PlayerEntity;
+        var playerEntity = PlayerManager.Instance != null ? PlayerManager.Instance.PlayerEntity : Entity.Null;
+
+        if (playerEntity == Entity.Null || !entityManager.Exists(playerEntity) || !entityManager.HasComponent<InventoryBuffer>(playerEntity))
+        {
+            return;
+        }
+
         var invBuffer = entityManager.GetBuffer<InventoryBuffer>(playerEntity);
 
-        for (int i = 0; i < itemSlots.Length; i++)
+        for (var i = 0; i < itemSlots.Length; i++)
         {
             if (i >= PlayerManager.Instance.CurrentStats.InventorySlotCount)
             {
@@ -53,7 +65,7 @@ public class InventoryManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"Inventory buffer does not have enough slots for item slot {i}. Inventory buffer length: {invBuffer.Length}");
+                DevLog.LogError($"Inventory buffer does not have enough slots for item slot {i}. Inventory buffer length: {invBuffer.Length}");
                 break;
             }
         }

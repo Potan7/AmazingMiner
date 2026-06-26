@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ui="UnityEngine.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+>
+    <!-- 공장 화면 오버레이 컨테이너 -->
+    <ui:VisualElement name="factory-layout" class="factory-screen">
+        <Style src="FactoryStyleSheet.uss" />
+
+
+        <!-- 상단 헤더: 공장 상태 모니터링 -->
+        <ui:VisualElement class="factory-header">
+            <ui:Label text="⚙️ 자동화 공장 관제 콘솔 (Factory Control Console)" class="factory-title" />
+            <ui:Button name="btn-exit-factory" text="관제 모드 종료 [Esc]" class="btn-exit" />
+        </ui:VisualElement>
+        
+        <!-- 하단 도구 및 요약 패널 -->
+        <ui:VisualElement class="factory-bottom-panel">
+            <ui:VisualElement class="factory-status-item">
+                <ui:Label text="⚡ 전체 전력 상태:" class="status-label" />
+                <ui:Label name="txt-power-status" text="120 kW / 150 kW (안정)" class="status-value-stable" />
+            </ui:VisualElement>
+            <ui:VisualElement class="factory-status-item">
+                <ui:Label text="📦 분당 생산 속도:" class="status-label" />
+                <ui:Label name="txt-production-rate" text="45 items/min" class="status-value" />
+            </ui:VisualElement>
+            <ui:VisualElement class="factory-status-item">
+                <ui:Label text="🏭 활성 설비 수:" class="status-label" />
+                <ui:Label name="txt-active-machines" text="8 / 12 대" class="status-value" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

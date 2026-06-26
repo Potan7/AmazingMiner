@@ -1,4 +1,4 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
@@ -48,8 +48,8 @@ namespace CoreDriller.Map.Rendering
             triangles.Clear();
 
             // 텍스처 아틀라스 설정 (4x4 그리드)
-            const float atlasSize = 4.0f;
-            const float uvStep = 1.0f / atlasSize;
+            //const float atlasSize = 4.0f;
+            //const float uvStep = 1.0f / atlasSize;
 
             // 청크 내 모든 블록을 순회하며 쿼드 생성
             for (int x = 0; x < ChunkSize; x++)

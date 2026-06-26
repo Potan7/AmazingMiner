@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ui="UnityEngine.UIElements"
+    xmlns:uie="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd"
+>
+    <!-- 전체 화면을 덮는 루트 컨테이너 -->
+    <ui:VisualElement name="main-canvas" class="fullscreen-canvas">
+        <Style src="MainUIStyleSheet.uss" />
+
+
+        
+        <!-- 0. 기본 HUD (화면 상단에 고정) -->
+        <ui:VisualElement name="hud-container" class="hud-panel">
+            <ui:VisualElement class="hud-item">
+                <ui:Label name="gold-icon" text="🪙" class="hud-icon" />
+                <ui:Label name="gold-label" text="0 G" class="hud-text" />
+            </ui:VisualElement>
+            <ui:VisualElement class="hud-item">
+                <ui:Label name="quest-icon" text="📜" class="hud-icon" />
+                <ui:Label name="quest-summary-label" text="진행 중인 퀘스트 없음" class="hud-text" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- 1. 상호작용 안내 메시지 (화면 하단 중앙) -->
+        <ui:VisualElement name="prompt-container" class="prompt-panel hidden">
+            <ui:Label name="prompt-label" text="[E] 상호작용" class="prompt-text" />
+        </ui:VisualElement>
+
+        <!-- 2. 모달 팝업 패널들이 로드될 컨테이너 (화면 정중앙 및 어두운 배경) -->
+        <ui:VisualElement name="modal-container" class="modal-overlay hidden">
+            <!-- C#에서 여기에 ShopPanel, StoragePanel, QuestPanel, MinePanel 등을 CloneTree()하여 동적으로 붙임 -->
+        </ui:VisualElement>
+
+        <!-- 5. 공장 전용 UI가 로드될 컨테이너 -->
+        <ui:VisualElement name="factory-container" class="factory-overlay hidden">
+            <!-- C#에서 여기에 FactoryPanel을 CloneTree()하여 붙임 -->
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>
